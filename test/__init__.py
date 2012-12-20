@@ -299,4 +299,4 @@ class SQLParamsTest(unittest.TestCase):
 		
 if __name__ == '__main__':
 	suite = unittest.TestLoader().loadTestsFromTestCase(SQLParamsTest)
-	unittest.TextTestRunnder(verbosity=2).run(suite)
+	unittest.TextTestRunner(verbosity=2).run(suite)

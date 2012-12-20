@@ -87,7 +87,7 @@ Installation
 __author__ = "Caleb P. Burns <cpburnz@gmail.com>"
 __copyright__ = "Copyright (C) 2012 by Caleb P. Burns"
 __license__ = "MIT"
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __created__ = "2012-11-30"
 __status__ = "Development"
 
