@@ -293,13 +293,6 @@ class SQLParamsTest(unittest.TestCase):
 		# Format SQL with params.
 		sql, many_params = query.formatmany(src_sql, src_params)
 		
-		# XXX
-		from pprint import pprint
-		print "SQL\n---\n{}\n---\n{}\n---".format(dest_sql, sql)
-		print "PARAMS"
-		pprint(dest_params)
-		pprint(many_params)
-		
 		# Make sure desired SQL and parameters are created.
 		self.assertTrue(sql == dest_sql)
 		self.assertTrue(many_params == dest_params)
