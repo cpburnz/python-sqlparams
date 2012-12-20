@@ -1,7 +1,0 @@
-README.rst
-setup.py
-sqlparams/__init__.py
-sqlparams.egg-info/PKG-INFO
-sqlparams.egg-info/SOURCES.txt
-sqlparams.egg-info/dependency_links.txt
-sqlparams.egg-info/top_level.txt
