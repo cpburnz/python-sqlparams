@@ -21,10 +21,10 @@ if has_setuptools:
 	kw['test_suite'] = 'test'
 
 setup(
-	name='sqlparams',
+	name=sqlparams.__project__,
 	version=sqlparams.__version__,
-	author="Caleb P. Burns",
-	author_email="cpburnz@gmail.com",
+	author=sqlparams.__author__,
+	author_email=sqlparams.__email__,
 	url="https://github.com/cpburnz/python-sql-parameters.git",
 	description="Convert DB API 2.0 named parameters to ordinal parameters.",
 	long_description=sqlparams.__doc__ + "\n" + changes,
@@ -39,7 +39,7 @@ setup(
 		"Topic :: Software Development",
 		"Topic :: Utilities"
 	],
-	license="MIT",
+	license=sqlparams.__license__,
 	packages=['sqlparams'],
 	**kw
 )
