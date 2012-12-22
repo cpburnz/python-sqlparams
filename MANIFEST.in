@@ -1,3 +1,5 @@
 include *.txt *.rst
 include test/*
+recursive-include doc *
+prune doc/build
 global-exclude *~ *.pyc

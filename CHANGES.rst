@@ -2,7 +2,7 @@
 Change History
 ==============
 
-1.0.2 (2012-12-21)
+1.0.2 (2012-12-22)
 ------------------
 
 - Added sphinx documentation.
