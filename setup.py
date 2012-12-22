@@ -11,7 +11,7 @@ import sqlparams
 
 # Write readme file.
 desc = sqlparams.__doc__
-desc = re.sub(r"\|([a-zA-Z0-9.()]+)\|_?", r"`\1`", desc)
+desc = re.sub(r"\|([a-zA-Z0-9.()]+)\|_?", r"*\1*", desc)
 with open('README.rst', 'wb') as fh:
 	fh.write(desc)
 

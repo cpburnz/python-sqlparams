@@ -1,12 +1,12 @@
 
-`sqlparams`: SQL Parameters
+*sqlparams*: SQL Parameters
 ===========================
 
-`sqlparams` is a utility module for simplifying the use of SQL
+*sqlparams* is a utility module for simplifying the use of SQL
 parameters in queries. Some `Python DB API 2.0`_ compliant modules only
 support the ordinal *qmark* or *format* style parameters (e.g., pyodbc_
 only supports *qmark*). This utility module provides a helper class,
-`SQLParams`, that is used to support named parameter styles such as
+*SQLParams*, that is used to support named parameter styles such as
 *named*, *numeric* and *pyformat*, and have them safely converted to the
 desired ordinal style.
 
@@ -17,15 +17,15 @@ desired ordinal style.
 Tutorial
 --------
 
-You first create an `SQLParams` instance specifying the named
+You first create an *SQLParams* instance specifying the named
 parameter style you're converting from, and what ordinal style you're
 converting to. Let's convert from *named* to *qmark* style::
 
   >>> import sqlparams
   >>> query = sqlparams.SQLParams('named', 'qmark')
 
-Now, lets to convert a simple SQL SELECT query using the `.format()`
-method which accepts an SQL query, and a `dict` of parameters::
+Now, lets to convert a simple SQL SELECT query using the *.format()*
+method which accepts an SQL query, and a *dict* of parameters::
 
   >>> sql, params = query.format('SELECT * FROM users WHERE name = :name;', {'name': "Thorin"})
   
@@ -40,7 +40,7 @@ corresponding list of ordinal parameters, which can be passed to the
   
 .. _`.execute()`: http://www.python.org/dev/peps/pep-0249/#id15
 
-`tuple`\ s are also supported which allows for safe use of the SQL IN
+*tuple*\ s are also supported which allows for safe use of the SQL IN
 operator::
 
   >>> sql, params = query.format("SELECT * FROM users WHERE name IN :names;", {'names': ("Dori", "Nori", "Ori")})
@@ -60,15 +60,15 @@ useful with the `.executemany()`_ method of a database cursor::
   
 .. _`.executemany()`: http://www.python.org/dev/peps/pep-0249/#executeman
   
-Please note that if a tuple is used in `.formatmany()`, the tuple must
+Please note that if a tuple is used in *.formatmany()*, the tuple must
 be the same size in each of the parameter lists. Otherwise, you might
-well use `.format()` in a for-loop.
+well use *.format()* in a for-loop.
 
 
 Source
 ------
 
-The source code for `sqlparams` is available from the GitHub repo
+The source code for *sqlparams* is available from the GitHub repo
 `cpburnz/python-sql-parameters`_.
 
 .. _`cpburnz/python-sql-parameters`: https://github.com/cpburnz/python-sql-parameters.git
@@ -77,11 +77,11 @@ The source code for `sqlparams` is available from the GitHub repo
 Installation
 ------------
 
-`sqlparams` can be installed from source with::
+*sqlparams* can be installed from source with::
 
   python setup.py install
   
-`sqlparams` is also available for install through PyPI_::
+*sqlparams* is also available for install through PyPI_::
 
   pip install sqlparams
   
@@ -91,7 +91,7 @@ Installation
 Documentation
 -------------
 
-Documentation for `sqlparams` is available from ...
+Documentation for *sqlparams* is available from ...
 
 
 
