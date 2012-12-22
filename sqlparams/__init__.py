@@ -92,10 +92,9 @@ Installation
 Documentation
 -------------
 
-Documentation for |sqlparams| is available from ...
+Documentation for |sqlparams| is available on `Read the Docs`_.
 
-
-
+.. _`Read the Docs`: https://python-sql-parameters.readthedocs.org
 """
 
 __project__ = "sqlparams"
