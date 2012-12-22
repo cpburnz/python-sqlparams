@@ -1,4 +1,5 @@
 # coding: utf-8
+import re
 try:
 	from setuptools import setup
 	has_setuptools = True
@@ -9,8 +10,10 @@ except ImportError:
 import sqlparams
 
 # Write readme file.
+desc = sqlparams.__doc__
+desc = re.sub(r"\|([a-zA-Z0-9.()]+)\|_?", r"`\1`", desc)
 with open('README.rst', 'wb') as fh:
-	fh.write(sqlparams.__doc__)
+	fh.write(desc)
 
 # Read changes file.
 with open('CHANGES.rst', 'rb') as fh:
@@ -27,7 +30,7 @@ setup(
 	author_email=sqlparams.__email__,
 	url="https://github.com/cpburnz/python-sql-parameters.git",
 	description="Convert DB API 2.0 named parameters to ordinal parameters.",
-	long_description=sqlparams.__doc__ + "\n" + changes,
+	long_description=desc + "\n" + changes,
 	classifiers=[
 		"Development Status :: 5 - Production/Stable",
 		"Intended Audience :: Developers",

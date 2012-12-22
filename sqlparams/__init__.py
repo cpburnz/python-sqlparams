@@ -32,12 +32,14 @@ method which accepts an SQL query, and a |dict| of parameters::
   
 This returns the new SQL query using ordinal *qmark* parameters with the
 corresponding list of ordinal parameters, which can be passed to the
-|.execute()|_ method on a database cursor::
+`.execute()`_ method on a database cursor::
 
   >>> print sql
   SELECT * FROM users WHERE name = ?;
   >>> print params
   ['Thorin']
+  
+.. _`.execute()`: http://www.python.org/dev/peps/pep-0249/#id15
 
 |tuple|\ s are also supported which allows for safe use of the SQL IN
 operator::
@@ -49,13 +51,15 @@ operator::
   ['Dori', 'Nori', 'Ori']
 
 You can also format multiple parameters for a single, shared query
-useful with the |.executemany()|_ method of a database cursor::
+useful with the `.executemany()`_ method of a database cursor::
 
   >>> sql, manyparams = query.formatmany("UPDATE users SET age = :age WHERE name = :name;", [{'name': "Dwalin", 'age': 169}, {'name': "Balin", 'age': 178}])
   >>> print sql
   UPDATE users SET age = ? WHERE name = ?;
   >>> print manyparams
   [[169, 'Dwalin'], [178, 'Balin']]
+  
+.. _`.executemany()`: http://www.python.org/dev/peps/pep-0249/#executeman
   
 Please note that if a tuple is used in |.formatmany()|, the tuple must
 be the same size in each of the parameter lists. Otherwise, you might

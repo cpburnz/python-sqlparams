@@ -20,17 +20,6 @@
 .. |tuple| replace:: :class:`tuple`
 
 
-.. DB API 2.0 references
-
-.. |.execute()| replace:: :meth:`execute`
-
-.. _.execute(): http://www.python.org/dev/peps/pep-0249/#id15
-
-.. |.executemany()| replace:: :meth:`executemany`
-
-.. _.executemany(): http://www.python.org/dev/peps/pep-0249/#executemany
-
-
 .. sqlparams references.
 
 .. |.format()| replace:: :meth:`.SQLParams.format`
