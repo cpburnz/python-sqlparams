@@ -2,6 +2,14 @@
 Change History
 ==============
 
+1.0.3 (2012-12-28)
+------------------
+
+- Fixed documentation for `issue 1`_.
+
+.. _`issue 1`: https://github.com/cpburnz/python-sql-parameters/issues/1
+
+
 1.0.2 (2012-12-22)
 ------------------
 

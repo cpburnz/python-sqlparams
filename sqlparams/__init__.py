@@ -102,7 +102,7 @@ __author__ = "Caleb P. Burns"
 __email__ = "cpburnz@gmail.com"
 __copyright__ = "Copyright (C) 2012 by Caleb P. Burns"
 __license__ = "MIT"
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __created__ = "2012-11-30"
 __status__ = "Production"
 
@@ -155,15 +155,22 @@ class SQLParams(object):
 		*ordinal* (|str|) is the ordinal parameter style that the SQL query
 		will be formatted to.
 		
-		- "format" indicates that parameters will be converted into question
-		  mark style::
+		- "format" indicates that parameters will be converted into format
+		  style::
 		
-		    ... WHERE name = ?
+		    ... WHERE name = %s
 		
 		- "qmark" indicates that parameters will be converted into question
 		  mark style::
 		
-		    ... WHERE name = %s
+		    ... WHERE name = ?
+		    
+	  .. NOTE:: Strictly speaking, `PEP 249`_ only specifies "%s" and
+	     "%(name)s" for the "format" and "pyformat" parameter styles so
+	     only those two (without any other conversions or flags) are
+	     supported by |SQLParams|.
+		  
+		.. _`PEP 249`: http://www.python.org/dev/peps/pep-0249/
 		"""
 		
 		self.named = None
