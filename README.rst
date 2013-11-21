@@ -94,3 +94,9 @@ Documentation
 Documentation for *sqlparams* is available on `Read the Docs`_.
 
 .. _`Read the Docs`: https://python-sql-parameters.readthedocs.org
+
+
+.. image:: https://d2weczhvl823v0.cloudfront.net/cpburnz/python-sql-parameters/trend.png
+   :alt: Bitdeli badge
+   :target: https://bitdeli.com/free
+
