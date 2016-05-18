@@ -1,5 +1,9 @@
 # coding: utf-8
 import re
+
+import sys
+PY_3 = sys.version_info.major == 3
+
 try:
 	from setuptools import setup
 	has_setuptools = True
@@ -12,11 +16,12 @@ import sqlparams
 # Write readme file.
 desc = sqlparams.__doc__
 desc = re.sub(r"\|([a-zA-Z0-9.()]+)\|_?", r"*\1*", desc)
-with open('README.rst', 'wb') as fh:
+
+with open('README.rst', 'w' if PY_3 else 'wb') as fh:
 	fh.write(desc)
 
 # Read changes file.
-with open('CHANGES.rst', 'rb') as fh:
+with open('CHANGES.rst', 'r' if PY_3 else 'rb') as fh:
 	changes = fh.read()
 
 kw = {}
