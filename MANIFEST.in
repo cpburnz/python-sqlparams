@@ -1,5 +1,6 @@
-include *.txt *.rst
-include test/*
+include *.rst
+include LICENSE
+recursive-include test *
 recursive-include doc *
 prune doc/build
-global-exclude *~ *.pyc
+global-exclude *.pyc

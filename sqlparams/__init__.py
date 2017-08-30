@@ -1,5 +1,5 @@
 # coding: utf-8
-"""
+r"""
 |sqlparams|: SQL Parameters
 ===========================
 
@@ -29,7 +29,7 @@ Now, lets to convert a simple SQL SELECT query using the |.format()|
 method which accepts an SQL query, and a |dict| of parameters::
 
   >>> sql, params = query.format('SELECT * FROM users WHERE name = :name;', {'name': "Thorin"})
-  
+
 This returns the new SQL query using ordinal *qmark* parameters with the
 corresponding list of ordinal parameters, which can be passed to the
 `.execute()`_ method on a database cursor::
@@ -38,7 +38,7 @@ corresponding list of ordinal parameters, which can be passed to the
   SELECT * FROM users WHERE name = ?;
   >>> print params
   ['Thorin']
-  
+
 .. _`.execute()`: http://www.python.org/dev/peps/pep-0249/#id15
 
 |tuple|\ s are also supported which allows for safe use of the SQL IN
@@ -58,9 +58,9 @@ useful with the `.executemany()`_ method of a database cursor::
   UPDATE users SET age = ? WHERE name = ?;
   >>> print manyparams
   [[169, 'Dwalin'], [178, 'Balin']]
-  
+
 .. _`.executemany()`: http://www.python.org/dev/peps/pep-0249/#executeman
-  
+
 Please note that if a tuple is used in |.formatmany()|, the tuple must
 be the same size in each of the parameter lists. Otherwise, you might
 well use |.format()| in a for-loop.
@@ -81,11 +81,11 @@ Installation
 |sqlparams| can be installed from source with::
 
   python setup.py install
-  
+
 |sqlparams| is also available for install through PyPI_::
 
   pip install sqlparams
-  
+
 .. _PyPI: http://pypi.python.org/pypi/sqlparams
 
 
@@ -96,18 +96,54 @@ Documentation for |sqlparams| is available on `Read the Docs`_.
 
 .. _`Read the Docs`: https://python-sql-parameters.readthedocs.org
 """
+from __future__ import unicode_literals
 
-__project__ = "sqlparams"
 __author__ = "Caleb P. Burns"
-__email__ = "cpburnz@gmail.com"
-__copyright__ = "Copyright (C) 2012 by Caleb P. Burns"
-__license__ = "MIT"
-__version__ = "1.0.3"
+__copyright__ = "Copyright © 2012-2017 by Caleb P. Burns"
 __created__ = "2012-11-30"
+__email__ = "cpburnz@gmail.com"
+__license__ = "MIT"
+__project__ = "sqlparams"
 __status__ = "Production"
+__updated__ = "2017-08-30"
+__version__ = "1.1.0"
 
 import collections
 import re
+
+from .compat import iteritems, unicode
+
+#: The encoding to use when parsing a byte query string.
+_BYTES_ENCODING = 'CP1252'
+
+#: Regular expression used to match "named" style parameters.
+_NAMED_STYLE_NAMED = re.compile(':(\\w+)')
+
+#: Regular expression used to match "numeric" style paramters.
+_NAMED_STYLE_NUMERIC = re.compile(':(\\d+)')
+
+#: Regular expression used to match "pyformat" style parameters.
+_NAMED_STYLE_PYFORMAT = re.compile('%\\((\\w+)\\)s')
+
+#: Maps named parameter style to its regular expression.
+_LOOKUP_NAMED_STYLE = {
+	'named': _NAMED_STYLE_NAMED,
+	'numeric': _NAMED_STYLE_NUMERIC,
+	'pyformat': _NAMED_STYLE_PYFORMAT,
+}
+
+#: The "format" ordinal parameter style.
+_ORDINAL_STYLE_FORMAT = '%s'
+
+#: The "qmark" ordinal parameter style.
+_ORDINAL_STYLE_QMARK = '?'
+
+#: Maps ordinal parameter style to its string.
+_LOOKUP_ORDINAL_STYLE = {
+	'format': _ORDINAL_STYLE_FORMAT,
+	'qmark': _ORDINAL_STYLE_QMARK,
+}
+
 
 class SQLParams(object):
 	"""
@@ -115,141 +151,131 @@ class SQLParams(object):
 	queries where they are not otherwise supported (e.g., pyodbc). This is
 	done by converting from a named parameter style query to an ordinal
 	style.
-	
+
 	Any |tuple| parameter will be expanded into "(?,?,...)" to support the
 	widely used "IN {tuple}" SQL expression without leaking any unescaped
 	values.
 	"""
-	
-	match_named = r":(\w+)"
-	
-	match_numeric = r":(\d+)"
-	
-	match_pyformat = r"%\((\w+)\)s"
-	
-	replace_format = "%s"
-	
-	replace_qmark = "?"
-	
+
 	def __init__(self, named, ordinal):
 		"""
 		Instantiates the |SQLParams| instance.
-		
-		*named* (|str|) is the named parameter style that will be used in
+
+		*named* (|string|) is the named parameter style that will be used in
 		an SQL query before being parsed and formatted to *ordinal*.
-		
+
 		- "named" indicates that the parameters will be in named style::
-		  
+
 		    ... WHERE name = :name
-		
+
 		- "numeric" indicates that the parameters will be in numeric,
 		  positional style::
-		
+
 		    ... WHERE name = :1
-		
+
 		- "pyformat" indicates that the parameters will be in python
 		  extended format codes::
-		
+
 		    ... WHERE name = %(name)s
-			
-		*ordinal* (|str|) is the ordinal parameter style that the SQL query
-		will be formatted to.
-		
+
+		*ordinal* (|string|) is the ordinal parameter style that the SQL
+		query will be formatted to.
+
 		- "format" indicates that parameters will be converted into format
 		  style::
-		
+
 		    ... WHERE name = %s
-		
+
 		- "qmark" indicates that parameters will be converted into question
 		  mark style::
-		
+
 		    ... WHERE name = ?
-		    
+
 	  .. NOTE:: Strictly speaking, `PEP 249`_ only specifies "%s" and
 	     "%(name)s" for the "format" and "pyformat" parameter styles so
 	     only those two (without any other conversions or flags) are
 	     supported by |SQLParams|.
-		  
+
 		.. _`PEP 249`: http://www.python.org/dev/peps/pep-0249/
 		"""
-		
+
 		self.named = None
 		"""
-		*named* (|str|) is the named parameter style that will be used
+		*named* (|string|) is the named parameter style that will be used
 		in an SQL query before being parsed and formatted to |self.ordinal|.
 		"""
-		
+
 		self.ordinal = None
 		"""
-		*ordinal* (|str|) is the ordinal parameter style that the SQL query
-		will be formatted to.
+		*ordinal* (|string|) is the ordinal parameter style that the SQL
+		query will be formatted to.
 		"""
-		
+
 		self.match = None
 		"""
 		*match* (|RegexObject|) is the regular expression that matches
 		parameter style of |self.named|.
 		"""
-		
+
 		self.replace = None
 		"""
-		*replace* (|str|) is what each matched string from |self.match| will
-		be replaced with.
+		*replace* (|string|) is what each matched string from |self.match|
+		will be replaced with.
 		"""
-		
-		if not isinstance(named, basestring):
+
+		if not isinstance(named, (unicode, bytes)):
 			raise TypeError("named:{!r} is not a string.".format(named))
-		
-		if not isinstance(ordinal, basestring):
+
+		if not isinstance(ordinal, (unicode, bytes)):
 			raise TypeError("ordinal:{!r} is not a string.".format(ordinal))
-			
+
 		self.named = named
 		self.ordinal = ordinal
-		
-		match_re = getattr(self, "match_" + named, None)
-		if not isinstance(match_re, basestring):
-			raise ValueError("named:{!r} is not supported.".format(named))
-		self.match = re.compile(match_re)
-		
-		repl_str = getattr(self, "replace_" + ordinal, None)
-		if not isinstance(repl_str, basestring):
-			raise ValueError("ordinal:{!r} is not supported.".format(ordinal))
-		self.replace = repl_str
-	
+
+		self.match = _LOOKUP_NAMED_STYLE[named]
+		self.replace = _LOOKUP_ORDINAL_STYLE[ordinal]
+
 	def __repr__(self):
 		"""
-		Returns the canonical string representation (|str|) of this
+		Returns the canonical string representation (|string|) of this
 		instance.
 		"""
 		return "{}.{}({!r}, {!r})".format(self.__class__.__module__, self.__class__.__name__, self.named, self.ordinal)
-	
+
 	def format(self, sql, params):
 		"""
 		Formats the SQL query to use ordinal parameters instead of named
 		parameters.
-		
+
 		*sql* (|string|) is the SQL query.
-		
-		*params* (|dict|) maps each named parameter (|str|) to value
+
+		*params* (|dict|) maps each named parameter (|string|) to value
 		(|object|). If |self.named| is "numeric", then *params* can be
 		simply a |sequence| of values mapped by index.
-		
+
 		Returns a 2-|tuple| containing: the formatted SQL query (|string|),
 		and the ordinal parameters (|list|).
 		"""
-		if not isinstance(sql, basestring):
-			raise TypeError("sql:{!r} is not a string.".format(sql))
+		if isinstance(sql, unicode):
+			string_type = unicode
+		elif isinstance(sql, bytes):
+			string_type = str
+			sql = sql.decode(_BYTES_ENCODING)
+		else:
+			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
+
 		if self.named == 'numeric':
-			if isinstance(params, dict):
-				params = {str(idx): val for idx, val in params.iteritems()}
-			elif isinstance(params, collections.Sequence) and not isinstance(params, basestring):
-				params = {str(idx): val for idx, val in enumerate(params, 1)}
-		if not isinstance(params, dict):
+			if isinstance(params, collections.Mapping):
+				params = {string_type(idx): val for idx, val in iteritems(params)}
+			elif isinstance(params, collections.Sequence) and not isinstance(params, (unicode, bytes)):
+				params = {string_type(idx): val for idx, val in enumerate(params, 1)}
+
+		if not isinstance(params, collections.Mapping):
 			raise TypeError("params:{!r} is not a dict.".format(params))
-		
+
 		# Find named parameters.
 		names = self.match.findall(sql)
-		
+
 		# Map named parameters to ordinals.
 		ord_params = []
 		name_to_ords = {}
@@ -263,38 +289,48 @@ class SQLParams(object):
 				ord_params.append(value)
 				if name not in name_to_ords:
 					name_to_ords[name] = self.replace
-		
+
 		# Replace named parameters with ordinals.
 		sql = self.match.sub(lambda m: name_to_ords[m.group(1)], sql)
-		
+
+		# Make sure the query is returned as the proper string type.
+		if string_type is bytes:
+			sql = sql.encode(_BYTES_ENCODING)
+
 		# Return formatted SQL and new ordinal parameters.
 		return sql, ord_params
-	
+
 	def formatmany(self, sql, many_params):
 		"""
 		Formats the SQL query to use ordinal parameters instead of named
 		parameters.
-		
+
 		*sql* (|string|) is the SQL query.
-		
+
 		*many_params* (|iterable|) contains each *params* to format.
-		
-		- *params* (|dict|) maps each named parameter (|str|) to value
+
+		- *params* (|dict|) maps each named parameter (|string|) to value
 		  (|object|). If |self.named| is "numeric", then *params* can be
 		  simply a |sequence| of values mapped by index.
-		
+
 		Returns a 2-|tuple| containing: the formatted SQL query (|string|),
 		and a |list| containing each ordinal parameters (|list|).
 		"""
-		if not isinstance(sql, basestring):
-			raise TypeError("sql:{!r} is not a string.".format(sql))
-		if not isinstance(many_params, collections.Iterable) or isinstance(many_params, basestring):
+		if isinstance(sql, unicode):
+			string_type = unicode
+		elif isinstance(sql, bytes):
+			string_type = str
+			sql = sql.decode(_BYTES_ENCODING)
+		else:
+			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
+
+		if not isinstance(many_params, collections.Iterable) or isinstance(many_params, (unicode, bytes)):
 			raise TypeError("many_params:{!r} is not iterable.".format(many_params))
 
 		# Find named parameters.
 		names = self.match.findall(sql)
 		name_set = set(names)
-		
+
 		# Map named parameters to ordinals.
 		many_ord_params = []
 		name_to_ords = {}
@@ -303,17 +339,18 @@ class SQLParams(object):
 		repl_tuple = (repl_str,)
 		for i, params in enumerate(many_params):
 			if self.named == 'numeric':
-				if isinstance(params, dict):
-					params = {str(idx): val for idx, val in params.iteritems()}
-				elif isinstance(params, collections.Sequence) and not isinstance(params, basestring):
-					params = {str(idx): val for idx, val in enumerate(params, 1)}
-			if not isinstance(params, dict):
+				if isinstance(params, collections.Mapping):
+					params = {string_type(idx): val for idx, val in iteritems(params)}
+				elif isinstance(params, collections.Sequence) and not isinstance(params, (unicode, bytes)):
+					params = {string_type(idx): val for idx, val in enumerate(params, 1)}
+
+			if not isinstance(params, collections.Mapping):
 				raise TypeError("many_params[{}]:{!r} is not a dict.".format(i, params))
-				
+
 			if not i: # first
 				# Map names to ordinals, and determine what names are tuples and
 				# what their lengths are.
-				for name in set(names):
+				for name in name_set:
 					value = params[name]
 					if isinstance(value, tuple):
 						tuple_len = len(value)
@@ -322,7 +359,7 @@ class SQLParams(object):
 					else:
 						name_to_ords[name] = repl_str
 						name_to_len[name] = None
-			
+
 			# Make sure tuples match up and collapse tuples into ordinals.
 			ord_params = []
 			for name in names:
@@ -337,9 +374,13 @@ class SQLParams(object):
 				else:
 					ord_params.append(value)
 			many_ord_params.append(ord_params)
-		
+
 		# Replace named parameters with ordinals.
 		sql = self.match.sub(lambda m: name_to_ords[m.group(1)], sql)
-		
+
+		# Make sure the query is returned as the proper string type.
+		if string_type is bytes:
+			sql = sql.encode(_BYTES_ENCODING)
+
 		# Return formatted SQL and new ordinal parameters.
 		return sql, many_ord_params

@@ -28,7 +28,7 @@ Now, lets to convert a simple SQL SELECT query using the *.format()*
 method which accepts an SQL query, and a *dict* of parameters::
 
   >>> sql, params = query.format('SELECT * FROM users WHERE name = :name;', {'name': "Thorin"})
-  
+
 This returns the new SQL query using ordinal *qmark* parameters with the
 corresponding list of ordinal parameters, which can be passed to the
 `.execute()`_ method on a database cursor::
@@ -37,7 +37,7 @@ corresponding list of ordinal parameters, which can be passed to the
   SELECT * FROM users WHERE name = ?;
   >>> print params
   ['Thorin']
-  
+
 .. _`.execute()`: http://www.python.org/dev/peps/pep-0249/#id15
 
 *tuple*\ s are also supported which allows for safe use of the SQL IN
@@ -57,9 +57,9 @@ useful with the `.executemany()`_ method of a database cursor::
   UPDATE users SET age = ? WHERE name = ?;
   >>> print manyparams
   [[169, 'Dwalin'], [178, 'Balin']]
-  
+
 .. _`.executemany()`: http://www.python.org/dev/peps/pep-0249/#executeman
-  
+
 Please note that if a tuple is used in *.formatmany()*, the tuple must
 be the same size in each of the parameter lists. Otherwise, you might
 well use *.format()* in a for-loop.
@@ -80,11 +80,11 @@ Installation
 *sqlparams* can be installed from source with::
 
   python setup.py install
-  
+
 *sqlparams* is also available for install through PyPI_::
 
   pip install sqlparams
-  
+
 .. _PyPI: http://pypi.python.org/pypi/sqlparams
 
 

@@ -1,7 +1,16 @@
-# Ignore compiled python files. 
-*~
+# Compiled python files.
 *.pyc
+
+# Packages.
 *.egg-info
 build
 dist
 MANIFEST
+
+# Temporary files.
+*~
+*.swp
+
+# Hidden files.
+.*
+!.gitignore

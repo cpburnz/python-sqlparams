@@ -13,9 +13,7 @@
 
 .. |sequence| replace:: :class:`collections.Sequence`
 
-.. |str| replace:: :class:`str`
-
-.. |string| replace:: :class:`basestring`
+.. |string| replace:: :class:`str`
 
 .. |tuple| replace:: :class:`tuple`
 
