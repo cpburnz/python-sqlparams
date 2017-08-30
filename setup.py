@@ -15,7 +15,7 @@ from sqlparams import __author__, __doc__, __email__, __license__, __project__, 
 # Write readme file.
 description = __doc__
 description = re.sub('\\|([a-zA-Z0-9.()]+)\\|_?', '*\\1*', description)
-with io.open('CHANGES.rst', mode='w', encoding='UTF-8') as fh:
+with io.open('README.rst', mode='w', encoding='UTF-8') as fh:
 	fh.write(description)
 
 # Read changes file.
