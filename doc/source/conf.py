@@ -10,6 +10,7 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
+from __future__ import unicode_literals
 
 import sys, os
 
@@ -45,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = __project__
-copyright = __copyright__.split(" (C) ")[1]
+copyright = __copyright__.split(" © ")[1]
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
