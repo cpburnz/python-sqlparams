@@ -105,8 +105,8 @@ __email__ = "cpburnz@gmail.com"
 __license__ = "MIT"
 __project__ = "sqlparams"
 __status__ = "Production"
-__updated__ = "2017-08-30"
-__version__ = "1.1.0"
+__updated__ = "2017-09-07"
+__version__ = "1.1.1"
 
 import collections
 import re
@@ -259,7 +259,7 @@ class SQLParams(object):
 		if isinstance(sql, unicode):
 			string_type = unicode
 		elif isinstance(sql, bytes):
-			string_type = str
+			string_type = bytes
 			sql = sql.decode(_BYTES_ENCODING)
 		else:
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
@@ -319,7 +319,7 @@ class SQLParams(object):
 		if isinstance(sql, unicode):
 			string_type = unicode
 		elif isinstance(sql, bytes):
-			string_type = str
+			string_type = bytes
 			sql = sql.decode(_BYTES_ENCODING)
 		else:
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
