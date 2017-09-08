@@ -12,7 +12,7 @@ only supports *qmark*). This utility module provides a helper class,
 desired ordinal style.
 
 .. _`Python DB API 2.0`: http://www.python.org/dev/peps/pep-0249/
-.. _pyodbc: http://code.google.com/p/pyodbc/
+.. _pyodbc: https://github.com/mkleehammer/pyodbc
 
 
 Tutorial
