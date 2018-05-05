@@ -105,8 +105,8 @@ __email__ = "cpburnz@gmail.com"
 __license__ = "MIT"
 __project__ = "sqlparams"
 __status__ = "Production"
-__updated__ = "2017-09-07"
-__version__ = "1.1.1"
+__updated__ = "2018-05-04"
+__version__ = "1.1.2"
 
 import collections
 import re
@@ -114,7 +114,7 @@ import re
 from .compat import iteritems, unicode
 
 #: The encoding to use when parsing a byte query string.
-_BYTES_ENCODING = 'CP1252'
+_BYTES_ENCODING = 'latin1'
 
 #: Regular expression used to match "named" style parameters.
 _NAMED_STYLE_NAMED = re.compile(':(\\w+)')

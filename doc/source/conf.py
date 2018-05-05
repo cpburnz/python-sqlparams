@@ -12,7 +12,8 @@
 # serve to show the default.
 from __future__ import unicode_literals
 
-import sys, os
+import os
+import sys
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -24,7 +25,7 @@ from sqlparams import __author__, __copyright__, __project__, __version__
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+# needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -46,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = __project__
-copyright = __copyright__.split(" © ")[1]
+copyright = __copyright__.split("©")[1].strip()
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -171,7 +172,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = '{}doc'.format(__project__)
+htmlhelp_basename = '{}doc'.format(project)
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -185,8 +186,7 @@ htmlhelp_basename = '{}doc'.format(__project__)
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', '{}.tex'.format(__project__), u'{} Documentation'.format(__project__),
-   __author__, 'manual'),
+  ('index', '{}.tex'.format(project), '{} Documentation'.format(project), __author__, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -218,6 +218,5 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', __project__, u'{} Documentation'.format(__project__),
-     __author__, 1)
+	('index', project, '{} Documentation'.format(project), __author__, 1),
 ]
