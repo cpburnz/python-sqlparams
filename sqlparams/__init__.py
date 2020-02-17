@@ -265,12 +265,12 @@ class SQLParams(object):
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
 
 		if self.named == 'numeric':
-			if isinstance(params, collections.Mapping):
+			if isinstance(params, collections.abc.Mapping):
 				params = {string_type(idx): val for idx, val in iteritems(params)}
-			elif isinstance(params, collections.Sequence) and not isinstance(params, (unicode, bytes)):
+			elif isinstance(params, collections.abc.Sequence) and not isinstance(params, (unicode, bytes)):
 				params = {string_type(idx): val for idx, val in enumerate(params, 1)}
 
-		if not isinstance(params, collections.Mapping):
+		if not isinstance(params, collections.abc.Mapping):
 			raise TypeError("params:{!r} is not a dict.".format(params))
 
 		# Find named parameters.
@@ -324,7 +324,7 @@ class SQLParams(object):
 		else:
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
 
-		if not isinstance(many_params, collections.Iterable) or isinstance(many_params, (unicode, bytes)):
+		if not isinstance(many_params, collections.abc.Iterable) or isinstance(many_params, (unicode, bytes)):
 			raise TypeError("many_params:{!r} is not iterable.".format(many_params))
 
 		# Find named parameters.
@@ -339,12 +339,12 @@ class SQLParams(object):
 		repl_tuple = (repl_str,)
 		for i, params in enumerate(many_params):
 			if self.named == 'numeric':
-				if isinstance(params, collections.Mapping):
+				if isinstance(params, collections.abc.Mapping):
 					params = {string_type(idx): val for idx, val in iteritems(params)}
-				elif isinstance(params, collections.Sequence) and not isinstance(params, (unicode, bytes)):
+				elif isinstance(params, collections.abc.Sequence) and not isinstance(params, (unicode, bytes)):
 					params = {string_type(idx): val for idx, val in enumerate(params, 1)}
 
-			if not isinstance(params, collections.Mapping):
+			if not isinstance(params, collections.abc.Mapping):
 				raise TypeError("many_params[{}]:{!r} is not a dict.".format(i, params))
 
 			if not i: # first
