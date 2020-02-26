@@ -96,22 +96,23 @@ Documentation for |sqlparams| is available on `Read the Docs`_.
 
 .. _`Read the Docs`: https://python-sql-parameters.readthedocs.org
 """
-from __future__ import unicode_literals
 
 __author__ = "Caleb P. Burns"
-__copyright__ = "Copyright © 2012-2017 by Caleb P. Burns"
+__copyright__ = "Copyright © 2012-2020 by Caleb P. Burns"
 __created__ = "2012-11-30"
+__credits__ = [
+	"khomyakov42 <https://github.com/khomyakov42>",
+	"pedermoller <https://github.com/pedermoller>",
+]
 __email__ = "cpburnz@gmail.com"
 __license__ = "MIT"
 __project__ = "sqlparams"
 __status__ = "Production"
 __updated__ = "2020-02-26"
-__version__ = "1.2.0"
+__version__ = "2.0.0"
 
-import collections
+import collections.abc
 import re
-
-from .compat import iteritems, unicode
 
 #: The encoding to use when parsing a byte query string.
 _BYTES_ENCODING = 'latin1'
@@ -223,10 +224,10 @@ class SQLParams(object):
 		will be replaced with.
 		"""
 
-		if not isinstance(named, (unicode, bytes)):
+		if not isinstance(named, (str, bytes)):
 			raise TypeError("named:{!r} is not a string.".format(named))
 
-		if not isinstance(ordinal, (unicode, bytes)):
+		if not isinstance(ordinal, (str, bytes)):
 			raise TypeError("ordinal:{!r} is not a string.".format(ordinal))
 
 		self.named = named
@@ -256,8 +257,8 @@ class SQLParams(object):
 		Returns a 2-|tuple| containing: the formatted SQL query (|string|),
 		and the ordinal parameters (|list|).
 		"""
-		if isinstance(sql, unicode):
-			string_type = unicode
+		if isinstance(sql, str):
+			string_type = str
 		elif isinstance(sql, bytes):
 			string_type = bytes
 			sql = sql.decode(_BYTES_ENCODING)
@@ -266,8 +267,8 @@ class SQLParams(object):
 
 		if self.named == 'numeric':
 			if isinstance(params, collections.abc.Mapping):
-				params = {string_type(idx): val for idx, val in iteritems(params)}
-			elif isinstance(params, collections.abc.Sequence) and not isinstance(params, (unicode, bytes)):
+				params = {string_type(idx): val for idx, val in params.items()}
+			elif isinstance(params, collections.abc.Sequence) and not isinstance(params, (str, bytes)):
 				params = {string_type(idx): val for idx, val in enumerate(params, 1)}
 
 		if not isinstance(params, collections.abc.Mapping):
@@ -316,15 +317,15 @@ class SQLParams(object):
 		Returns a 2-|tuple| containing: the formatted SQL query (|string|),
 		and a |list| containing each ordinal parameters (|list|).
 		"""
-		if isinstance(sql, unicode):
-			string_type = unicode
+		if isinstance(sql, str):
+			string_type = str
 		elif isinstance(sql, bytes):
 			string_type = bytes
 			sql = sql.decode(_BYTES_ENCODING)
 		else:
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
 
-		if not isinstance(many_params, collections.abc.Iterable) or isinstance(many_params, (unicode, bytes)):
+		if not isinstance(many_params, collections.abc.Iterable) or isinstance(many_params, (str, bytes)):
 			raise TypeError("many_params:{!r} is not iterable.".format(many_params))
 
 		# Find named parameters.
@@ -340,8 +341,8 @@ class SQLParams(object):
 		for i, params in enumerate(many_params):
 			if self.named == 'numeric':
 				if isinstance(params, collections.abc.Mapping):
-					params = {string_type(idx): val for idx, val in iteritems(params)}
-				elif isinstance(params, collections.abc.Sequence) and not isinstance(params, (unicode, bytes)):
+					params = {string_type(idx): val for idx, val in params.items()}
+				elif isinstance(params, collections.abc.Sequence) and not isinstance(params, (str, bytes)):
 					params = {string_type(idx): val for idx, val in enumerate(params, 1)}
 
 			if not isinstance(params, collections.abc.Mapping):
