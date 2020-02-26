@@ -3,12 +3,8 @@ from __future__ import unicode_literals
 
 import io
 import re
-try:
-	from setuptools import setup
-	has_setuptools = True
-except ImportError:
-	from distutils.core import setup
-	has_setuptools = False
+
+from setuptools import setup
 
 from sqlparams import __author__, __doc__, __email__, __license__, __project__, __version__
 
@@ -43,6 +39,8 @@ setup(
 		"Programming Language :: Python :: 3.4",
 		"Programming Language :: Python :: 3.5",
 		"Programming Language :: Python :: 3.6",
+		"Programming Language :: Python :: 3.7",
+		"Programming Language :: Python :: 3.8",
 		"Programming Language :: Python :: Implementation :: CPython",
 		"Programming Language :: Python :: Implementation :: PyPy",
 		"Topic :: Database",
@@ -51,7 +49,6 @@ setup(
 	],
 	license=__license__,
 	packages=['sqlparams'],
-	**(dict(
-		test_suite='test',
-	) if has_setuptools else {})
+	python_requires=">=2.7, !=3.0.*, !=3.1.*, <3.9",
+	test_suite='test',
 )

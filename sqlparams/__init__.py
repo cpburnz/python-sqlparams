@@ -105,8 +105,8 @@ __email__ = "cpburnz@gmail.com"
 __license__ = "MIT"
 __project__ = "sqlparams"
 __status__ = "Production"
-__updated__ = "2018-05-04"
-__version__ = "1.1.2"
+__updated__ = "2020-02-26"
+__version__ = "1.2.0"
 
 import collections
 import re
