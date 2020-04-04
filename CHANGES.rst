@@ -15,7 +15,7 @@ Change History
 - Named parameters must now be valid identifiers (can no longer start with a
   digit to help prevent incorrectly matching common strings such as
   datetimes). Fixes `Issue #4`_.
-- `Issue #7`_: Support dollar sign style for numeric and named parameters: ``
+- `Issue #7`_: Support dollar sign style for numeric and named parameters.
 
 .. _`Issue #4`: https://github.com/cpburnz/python-sql-parameters/issues/4
 .. _`Issue #7`: https://github.com/cpburnz/python-sql-parameters/issues/7
