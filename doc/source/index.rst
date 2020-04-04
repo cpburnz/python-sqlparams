@@ -4,8 +4,8 @@
    contain the root `toctree` directive.
 
 
-Welcome to sqlparams's documentation!
-=====================================
+Welcome to SQL Params's documentation!
+======================================
 
 Contents:
 

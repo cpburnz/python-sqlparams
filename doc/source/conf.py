@@ -10,7 +10,6 @@
 #
 # All configuration values have a default; values that are commented out
 # serve to show the default.
-from __future__ import unicode_literals
 
 import os
 import sys
@@ -19,7 +18,7 @@ import sys
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../../'))
-from sqlparams import __author__, __copyright__, __project__, __version__
+from sqlparams_meta import __author__, __copyright__, __version__
 
 
 # -- General configuration -----------------------------------------------------
@@ -31,7 +30,7 @@ from sqlparams import __author__, __copyright__, __project__, __version__
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.viewcode']
 
-intersphinx_mapping = {'python': ('http://docs.python.org/2.7', None)}
+intersphinx_mapping = {'python': ('http://docs.python.org/3', None)}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -46,7 +45,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = __project__
+project = "SQL Params"
 copyright = __copyright__.split("©")[1].strip()
 
 # The version info for the project you're documenting, acts as replacement for

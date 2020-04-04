@@ -1,12 +1,12 @@
 
-.. include:: global.rst
+.. include:: ../../README.in
+
+API
+---
 
 .. automodule:: sqlparams
 
-   API
-   ---
-
    .. autoclass:: SQLParams()
       :members:
-      
+
       .. automethod:: __init__

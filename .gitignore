@@ -14,3 +14,7 @@ MANIFEST
 # Hidden files.
 .*
 !.gitignore
+
+# Project files.
+*.sublime-project
+*.sublime-workspace
