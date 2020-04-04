@@ -26,6 +26,7 @@ def generate_readme():
 		readme = fh.read()
 
 	for old, new in [
+		(":class:`dict`", "*dict*"),
 		(":class:`tuple`", "*tuple*"),
 		(":class:`.SQLParams`", "`SQLParams`_"),
 		(":meth:`.SQLParams.format`", "`SQLParams.format`_"),

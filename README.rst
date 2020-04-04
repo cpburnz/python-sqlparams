@@ -26,7 +26,7 @@ converting to. Let's convert from *named* to *qmark* style::
   >>> query = sqlparams.SQLParams('named', 'qmark')
 
 Now, lets to convert a simple SQL SELECT query using the `SQLParams.format`_
-method which accepts an SQL query, and a :class:`dict` of parameters::
+method which accepts an SQL query, and a *dict* of parameters::
 
   >>> sql, params = query.format('SELECT * FROM users WHERE name = :name;', {'name': "Thorin"})
 
