@@ -37,7 +37,7 @@ class SQLParams(object):
 	unescaped values.
 	"""
 
-	def __init__(self, in_style=None, out_style=None, escape_char=None, expand_tuples=None):
+	def __init__(self, in_style, out_style, escape_char=None, expand_tuples=None):
 		"""
 		Instantiates the :class:`.SQLParams` instance.
 
