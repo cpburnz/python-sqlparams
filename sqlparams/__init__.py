@@ -4,6 +4,18 @@ parameter styles.
 """
 
 import re
+from typing import (
+	Any,
+	AnyStr,
+	Dict,
+	Iterable,
+	List,
+	Optional,
+	Pattern,
+	Sequence,
+	Tuple,
+	Type,
+	Union)
 
 from . import _converting
 from . import _styles
@@ -17,11 +29,15 @@ from ._meta import (
 	__version__,
 )
 
-#: The encoding to use when parsing a byte query string.
 _BYTES_ENCODING = 'latin1'
+"""
+The encoding to use when parsing a byte query string.
+"""
 
-#: Maps parameter style by name.
 _STYLES = {}
+"""
+Maps parameter style by name.
+"""
 
 
 class SQLParams(object):
@@ -29,15 +45,21 @@ class SQLParams(object):
 	The :class:`.SQLParams` class is used to support named parameters in
 	SQL queries where they are not otherwise supported (e.g., pyodbc).
 	This is done by converting from one parameter style query to another
-	parameter style query..
+	parameter style query.
 
-	By default when converting to a numeric or ordinal style any
+	By default, when converting to a numeric or ordinal style any
 	:class:`tuple` parameter will be expanded into "(?,?,...)" to support
 	the widely used "IN {tuple}" SQL expression without leaking any
 	unescaped values.
 	"""
 
-	def __init__(self, in_style, out_style, escape_char=None, expand_tuples=None):
+	def __init__(
+		self,
+		in_style: str,
+		out_style: str,
+		escape_char: Union[str, bool, None] = None,
+		expand_tuples: Optional[bool] = None,
+	) -> None:
 		"""
 		Instantiates the :class:`.SQLParams` instance.
 
@@ -55,122 +77,122 @@ class SQLParams(object):
 
 		*expand_tuples* (:class:`bool` or :data:`None`) is whether to
 		expand tuples into a sequence of parameters. Default is :data:`None`
-		to let it be determined by *out_style* (to maintain backward). If
-		*out_style* is a numeric or ordinal style, expand tuples by default
-		(:data:`True`). If *out_style* is a named style, do not expand
-		tuples by default (:data:`False`).
+		to let it be determined by *out_style* (to maintain backward
+		compatibility). If *out_style* is a numeric or ordinal style, expand
+		tuples by default (:data:`True`). If *out_style* is a named style,
+		do not expand tuples by default (:data:`False`).
 
 		The following parameter styles are supported by both *in_style* and
 		*out_style*:
 
-		- For all named styles the parameter keys must be valid `Python identifiers`_.
-		  They cannot start with a digit. This is to help prevent
-		  incorrectly matching common strings such as datetimes.
+		-	For all named styles the parameter keys must be valid `Python identifiers`_.
+			They cannot start with a digit. This is to help prevent
+			incorrectly matching common strings such as datetimes.
 
-		  Named styles:
+			Named styles:
 
-		  - "named" indicates parameters will use the named style::
+			-	"named" indicates parameters will use the named style::
 
-		      ... WHERE name = :name
+					... WHERE name = :name
 
-		  - "named_dollar" indicates parameters will use the named dollar
-		    sign style::
+			-	"named_dollar" indicates parameters will use the named dollar
+				sign style::
 
-		      ... WHERE name = $name
+					... WHERE name = $name
 
-		    .. NOTE:: This is not defined by `PEP 249`_.
+				.. NOTE:: This is not defined by `PEP 249`_.
 
-		  - "pyformat" indicates parameters will use the named Python
-		    extended format style::
+			-	"pyformat" indicates parameters will use the named Python
+				extended format style::
 
-		      ... WHERE name = %(name)s
+					... WHERE name = %(name)s
 
-		    .. NOTE:: Strictly speaking, `PEP 249`_ only specifies
-		       "%(name)s" for the "pyformat" parameter style so only that
-		       form (without any other conversions or flags) is supported.
+				.. NOTE:: Strictly speaking, `PEP 249`_ only specifies
+				   "%(name)s" for the "pyformat" parameter style so only that
+				   form (without any other conversions or flags) is supported.
 
-		- All numeric styles start at :data:`1`. When using a
-		  :class:`~collections.abc.Sequence` for the parameters, the 1st
-		  parameter (e.g., ":1") will correspond to the 1st element of the
-		  sequence (i.e., index :data:`0`). When using a :class:`~collections.abc.Mapping`
-		  for the parameters, the 1st parameter (e.g., ":1") will correspond
-		  to the matching key (i.e., :data:`1` or :data:`"1"`).
+		-	All numeric styles start at :data:`1`. When using a
+			:class:`~collections.abc.Sequence` for the parameters, the 1st
+			parameter (e.g., ":1") will correspond to the 1st element of the
+			sequence (i.e., index :data:`0`). When using a :class:`~collections.abc.Mapping`
+			for the parameters, the 1st parameter (e.g., ":1") will correspond
+			to the matching key (i.e., :data:`1` or :data:`"1"`).
 
-		  Numeric styles:
+			Numeric styles:
 
-		  - "numeric" indicates parameters will use the numeric style::
+			-	"numeric" indicates parameters will use the numeric style::
 
-		      ... WHERE name = :1
+					... WHERE name = :1
 
-		  - "numeric_dollar" indicates parameters will use the numeric
-		    dollar sign style (starts at :data:`1`)::
+			-	"numeric_dollar" indicates parameters will use the numeric
+				dollar sign style (starts at :data:`1`)::
 
-		      ... WHERE name = $1
+					... WHERE name = $1
 
-		    .. NOTE:: This is not defined by `PEP 249`_.
+				.. NOTE:: This is not defined by `PEP 249`_.
 
 		- Ordinal styles:
 
-		  - "format" indicates parameters will use the ordinal Python format
-		    style::
+			-	"format" indicates parameters will use the ordinal Python format
+				style::
 
-		      ... WHERE name = %s
+					... WHERE name = %s
 
-		    .. NOTE:: Strictly speaking, `PEP 249`_ only specifies "%s" for
-		       the "format" parameter styles so only that form (without any
-		       other conversions or flags) is supported.
+				.. NOTE:: Strictly speaking, `PEP 249`_ only specifies "%s" for
+				   the "format" parameter styles so only that form (without any
+				   other conversions or flags) is supported.
 
-		  - "qmark" indicates parameters will use the ordinal question mark
-		    style::
+			-	"qmark" indicates parameters will use the ordinal question mark
+				style::
 
-		      ... WHERE name = ?
+					... WHERE name = ?
 
 		.. _`PEP 249`: http://www.python.org/dev/peps/pep-0249/
 
 		.. _`Python identifiers`: https://docs.python.org/3/reference/lexical_analysis.html#identifiers
 		"""
 
-		self._converter = None
+		self._converter: _converting._Converter = None
 		"""
 		*_converter* (:class:`._converting._Converter`) is the parameter
 		converter to use.
 		"""
 
-		self._escape_char = None
+		self._escape_char: Optional[str] = None
 		"""
 		*_escape_char* (:class:`str` or :data:`None`) is the escape
 		character used to prevent matching a in-style parameter.
 		"""
 
-		self._expand_tuples = None
+		self._expand_tuples: bool = None
 		"""
 		*_expand_tuples* (:class:`bool`) is whether to convert tuples into a
 		sequence of parameters.
 		"""
 
-		self._in_obj = None
+		self._in_obj: _styles._Style = None
 		"""
 		*_in_obj* (:class:`._styles._Style`) is the in-style parameter object.
 		"""
 
-		self._in_regex = None
+		self._in_regex: Pattern = None
 		"""
 		*_in_regex* (:class:`re.Pattern`) is the regular expression used to
 		extract the in-style parameters.
 		"""
 
-		self._in_style = None
+		self._in_style: str = None
 		"""
 		*_in_style* (:class:`str`) is the parameter style that will be used
 		in an SQL query before being parsed and converted to :attr:`.SQLParams.out_style`.
 		"""
 
-		self._out_obj = None
+		self._out_obj: _styles._Style = None
 		"""
 		*_out_obj* (:class:`._styles._Style`) is the out-style parameter object.
 		"""
 
-		self._out_style = None
+		self._out_style: str = None
 		"""
 		*_out_style* (:class:`str`) is the parameter style that the SQL query
 		will be converted to.
@@ -203,19 +225,17 @@ class SQLParams(object):
 		self._escape_char = use_char
 		self._expand_tuples = bool(expand_tuples)
 
-		# TODO: Enable expand tuples when converting to numeric or ordinal.
-
 		self._in_regex = self._create_in_regex()
 		self._converter = self._create_converter()
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		"""
 		Returns the canonical string representation (:class:`str`) of this
 		instance.
 		"""
 		return "{}.{}({!r}, {!r})".format(self.__class__.__module__, self.__class__.__name__, self._in_style, self._out_style)
 
-	def _create_converter(self):
+	def _create_converter(self) -> _converting._Converter:
 		"""
 		Create the parameter style converter.
 
@@ -225,6 +245,7 @@ class SQLParams(object):
 		assert self._out_obj is not None, self._out_obj
 
 		# Determine converter class.
+		converter_class: Type[_converting._Converter]
 		if isinstance(self._in_obj, _styles._NamedStyle):
 			if isinstance(self._out_obj, _styles._NamedStyle):
 				converter_class = _converting._NamedToNamedConverter
@@ -268,25 +289,28 @@ class SQLParams(object):
 		)
 		return converter
 
-	def _create_in_regex(self):
+	def _create_in_regex(self) -> Pattern:
 		"""
 		Create the in-style parameter regular expression.
 
 		Returns the in-style parameter regular expression (:class:`re.Pattern`).
 		"""
-		if self.escape_char:
-			# Escaping is enabled.
-			return re.compile("{}|{}".format(
-				self._in_obj.escape_regex.format(char=re.escape(self.escape_char)),
-				self._in_obj.param_regex,
-			))
+		regex_parts = []
 
-		else:
-			# Escaping is disabled.
-			return re.compile(self._in_obj.param_regex)
+		if self._in_obj.escape_char != "%" and self._out_obj.escape_char == "%":
+			regex_parts.append("(?P<out_percent>%)")
+
+		if self._escape_char:
+			# Escaping is enabled.
+			escape = self._in_obj.escape_regex.format(char=re.escape(self._escape_char))
+			regex_parts.append(escape)
+
+		regex_parts.append(self._in_obj.param_regex)
+
+		return re.compile("|".join(regex_parts))
 
 	@property
-	def escape_char(self):
+	def escape_char(self) -> Optional[str]:
 		"""
 		*escape_char* (:class:`str` or :data:`None`) is the escape character
 		used to prevent matching a in-style parameter.
@@ -294,14 +318,18 @@ class SQLParams(object):
 		return self._escape_char
 
 	@property
-	def expand_tuples(self):
+	def expand_tuples(self) -> bool:
 		"""
 		*expand_tuples* (:class:`bool`) is whether to convert tuples into a
 		sequence of parameters.
 		"""
 		return self._expand_tuples
 
-	def format(self, sql, params):
+	def format(
+		self,
+		sql: AnyStr,
+		params: Union[Dict[Union[str, int], Any], Sequence[Any]],
+	) -> Tuple[AnyStr, Union[Dict[Union[str, int], Any], Sequence[Any]]]:
 		"""
 		Convert the SQL query to use the out-style parameters instead of
 		the in-style parameters.
@@ -317,10 +345,10 @@ class SQLParams(object):
 
 		Returns a :class:`tuple` containing:
 
-		- The formatted SQL query (:class:`str` or :class:`bytes`).
+		-	The formatted SQL query (:class:`str` or :class:`bytes`).
 
-		- The set of converted out-style parameters (:class:`dict` or
-		  :class:`list`).
+		-	The set of converted out-style parameters (:class:`dict` or
+			:class:`list`).
 		"""
 		# Normalize query encoding to simplify processing.
 		if isinstance(sql, str):
@@ -344,7 +372,11 @@ class SQLParams(object):
 		# Return converted SQL and out-parameters.
 		return out_sql, out_params
 
-	def formatmany(self, sql, many_params):
+	def formatmany(
+		self,
+		sql: AnyStr,
+		many_params: Union[Iterable[Dict[Union[str, int], Any]], Iterable[Sequence[Any]]],
+	) -> Tuple[AnyStr, Union[List[Dict[Union[str, int], Any]], List[Sequence[Any]]]]:
 		"""
 		Convert the SQL query to use the out-style parameters instead of the
 		in-style parameters.
@@ -354,19 +386,19 @@ class SQLParams(object):
 		*many_params* (:class:`~collections.abc.Iterable`) contains each set
 		of in-style parameters (*params*).
 
-		- *params* (:class:`~collections.abc.Mapping` or :class:`~collections.abc.Sequence`)
-		  contains the set of in-style parameters. It maps each parameter
-		  (:class:`str` or :class:`int`) to value. If :attr:`.SQLParams.in_style`
-		  is a named parameter style. then *params* must be a :class:`~collections.abc.Mapping`.
-		  If :attr:`.SQLParams.in_style` is an ordinal parameter style. then
-		  *params* must be a :class:`~collections.abc.Sequence`.
+		-	*params* (:class:`~collections.abc.Mapping` or :class:`~collections.abc.Sequence`)
+			contains the set of in-style parameters. It maps each parameter
+			(:class:`str` or :class:`int`) to value. If :attr:`.SQLParams.in_style`
+			is a named parameter style. then *params* must be a :class:`~collections.abc.Mapping`.
+			If :attr:`.SQLParams.in_style` is an ordinal parameter style. then
+			*params* must be a :class:`~collections.abc.Sequence`.
 
 		Returns a :class:`tuple` containing:
 
-		- The formatted SQL query (:class:`str` or :class:`bytes`).
+		-	The formatted SQL query (:class:`str` or :class:`bytes`).
 
-		- A :class:`list` containing each set of converted out-style
-		  parameters (:class:`dict` or :class:`list`).
+		-	A :class:`list` containing each set of converted out-style
+			parameters (:class:`dict` or :class:`list`).
 		"""
 		# Normalize query encoding to simplify processing.
 		if isinstance(sql, str):
@@ -394,7 +426,7 @@ class SQLParams(object):
 		return out_sql, many_out_params
 
 	@property
-	def in_style(self):
+	def in_style(self) -> str:
 		"""
 		*in_style* (:class:`str`) is the parameter style to expect in an SQL
 		query when being parsed.
@@ -402,7 +434,7 @@ class SQLParams(object):
 		return self._in_style
 
 	@property
-	def out_style(self):
+	def out_style(self) -> str:
 		"""
 		*out_style* (:class:`str`) is the parameter style that the SQL query
 		will be converted to.

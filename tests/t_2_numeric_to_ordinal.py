@@ -583,3 +583,135 @@ class Test(unittest.TestCase):
 		# Make sure desired SQL and parameters are created.
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
+
+	def test_5_numeric_to_format_escaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % :1
+
+		to::
+
+			SELECT 5 %% %s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('numeric', 'format')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % :1;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %s;
+		"""
+		dest_params = [value]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_numeric_to_qmark_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % :1
+
+		to::
+
+			SELECT 5 % ?
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('numeric', 'qmark')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % :1;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % ?;
+		"""
+		dest_params = [value]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_numeric_dollar_to_format_escaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % $1
+
+		to::
+
+			SELECT 5 %% %s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('numeric_dollar', 'format')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % $1;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %s;
+		"""
+		dest_params = [value]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_numeric_dollar_to_qmark_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % $1
+
+		to::
+
+			SELECT 5 % ?
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('numeric_dollar', 'qmark')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % $1;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % ?;
+		"""
+		dest_params = [value]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)

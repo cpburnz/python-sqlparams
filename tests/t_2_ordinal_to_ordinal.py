@@ -583,3 +583,69 @@ class OrdinalToOrdinal(unittest.TestCase):
 		# Make sure desired SQL and parameters are created.
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
+
+	def test_5_format_to_qmark_collapsed_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 %% %s
+
+		to::
+
+			SELECT 5 % ?
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('format', 'qmark', escape_char=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 %% %s;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % ?;
+		"""
+		dest_params = [value]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_qmark_to_format_escaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % ?
+
+		to::
+
+			SELECT 5 %% %s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('qmark', 'format')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % ?;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %s;
+		"""
+		dest_params = [value]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)

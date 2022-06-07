@@ -2,6 +2,20 @@
 Change History
 ==============
 
+
+4.0.0 (2022-06-06)
+------------------
+
+- Drop support for EOL Python 3.5.
+-	`Issue #10`_: When converting to 'format'/'pyformat' types, escape existing
+	'%' characters.
+-	When converting from 'format'/'pyformat' types, set `escape_char=True` to
+	unescape double '%' characters.
+
+.. _`Issue #10`: https://github.com/cpburnz/python-sql-parameters/issues/10
+
+
+
 3.0.0 (2020-04-04)
 ------------------
 

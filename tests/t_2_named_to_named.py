@@ -21,11 +21,11 @@ class Test(unittest.TestCase):
 		"""
 		Test converting from::
 
-		  ... WHERE name = :name
+			... WHERE name = :name
 
 		to::
 
-		  ... WHERE name = $name
+			... WHERE name = $name
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('named', 'named_dollar')
@@ -57,11 +57,11 @@ class Test(unittest.TestCase):
 		"""
 		Test converting many from::
 
-		  ... WHERE name = :name
+			... WHERE name = :name
 
 		to::
 
-		  ... WHERE name = $name
+			... WHERE name = $name
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('named', 'named_dollar')
@@ -96,11 +96,11 @@ class Test(unittest.TestCase):
 		"""
 		Test converting from::
 
-		  ... WHERE name = :name
+			... WHERE name = :name
 
 		to::
 
-		  ... WHERE name = $name
+			... WHERE name = %(name)s
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('named_dollar', 'pyformat')
@@ -132,11 +132,11 @@ class Test(unittest.TestCase):
 		"""
 		Test converting many from::
 
-		  ... WHERE name = :name
+			... WHERE name = :name
 
 		to::
 
-		  ... WHERE name = $name
+			... WHERE name = %(name)s
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('named_dollar', 'pyformat')
@@ -172,11 +172,11 @@ class Test(unittest.TestCase):
 		"""
 		Test converting from::
 
-		  ... WHERE name = %(name)s
+			... WHERE name = %(name)s
 
 		to::
 
-		  ... WHERE name = :name
+			... WHERE name = :name
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('pyformat', 'named')
@@ -208,11 +208,11 @@ class Test(unittest.TestCase):
 		"""
 		Test converting from::
 
-		  ... WHERE name = %(name)s
+			... WHERE name = %(name)s
 
 		to::
 
-		  ... WHERE name = :name
+			... WHERE name = :name
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('pyformat', 'named')
@@ -654,6 +654,198 @@ class Test(unittest.TestCase):
 			SELECT *
 			FROM users
 			WHERE name = :name AND tag IN ('%%(Y2941)s', '%(2941)s');
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_named_to_named_dollar_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % :value
+
+		to::
+
+			SELECT 5 % $value
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'named_dollar')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % :value;
+		"""
+		src_params = {'value': 2}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % $value;
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_named_to_pyformat_escaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % :value
+
+		to::
+
+			SELECT 5 %% %(value)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % :value;
+		"""
+		src_params = {'value': 2}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %(value)s;
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_named_dollar_to_named_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % $value
+
+		to::
+
+			SELECT 5 % :value
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_dollar', 'named')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % $value;
+		"""
+		src_params = {'value': 2}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % :value;
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_named_dollar_to_pyformat_escaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % $value
+
+		to::
+
+			SELECT 5 %% %(value)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_dollar', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % $value;
+		"""
+		src_params = {'value': 2}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %(value)s;
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_pyformat_to_named_collapsed_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 %% %(value)s
+
+		to::
+
+			SELECT 5 % :value
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('pyformat', 'named', escape_char=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 %% %(value)s;
+		"""
+		src_params = {'value': 2}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % :value;
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_pyformat_to_named_dollar_collapsed_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 %% %(value)s
+
+		to::
+
+			SELECT 5 % $value
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('pyformat', 'named_dollar', escape_char=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 %% %(value)s;
+		"""
+		src_params = {'value': 2}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % $value;
 		"""
 		dest_params = copy.deepcopy(src_params)
 

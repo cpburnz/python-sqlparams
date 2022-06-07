@@ -2,8 +2,12 @@
 This module contains internal classes for defining parameter styles.
 """
 
-#: Maps parameter style by name.
-_STYLES = {}
+from typing import Dict
+
+_STYLES: Dict[str, '_Style'] = {}
+"""
+Maps parameter style by name.
+"""
 
 
 class _Style(object):
@@ -12,35 +16,42 @@ class _Style(object):
 	parameter style.
 	"""
 
-	def __init__(self, name, escape_char, escape_regex, out_format, param_regex):
+	def __init__(
+		self,
+		name: str,
+		escape_char: str,
+		escape_regex: str,
+		out_format: str,
+		param_regex: str,
+	) -> None:
 		"""
 		Initializes the :class:`._Style` instances.
 		"""
 
-		self.escape_char = escape_char
+		self.escape_char: str = escape_char
 		"""
 		*escape_char* (:class:`str`) is the escape character used to prevent
 		matching a parameter.
 		"""
 
-		self.escape_regex = escape_regex
+		self.escape_regex: str = escape_regex
 		"""
 		*escape_regex* (:class:`str`) is the regular expression used to
 		match the escape sequence.
 		"""
 
-		self.name = name
+		self.name: str = name
 		"""
 		*name* (:class:`str`) is the name of the parameter style.
 		"""
 
-		self.out_format = out_format
+		self.out_format: str = out_format
 		"""
 		*out_format* (:class:`str`) is the out-style parameter format
 		string.
 		"""
 
-		self.param_regex = param_regex
+		self.param_regex: str = param_regex
 		"""
 		*param_regex* (:class:`str`) is the regular expression used to
 		extract the parameter.
@@ -61,13 +72,13 @@ class _NumericStyle(_Style):
 	parameter style.
 	"""
 
-	def __init__(self, start, **kw):
+	def __init__(self, start: int, **kw) -> None:
 		"""
-		Initializes the :class:`._OrdinalStyle` instances.
+		Initializes the :class:`._NumericStyle` instances.
 		"""
 		super().__init__(**kw)
 
-		self.start = start
+		self.start: int = start
 		"""
 		*start* (:class:`int`) indicates to start enumerating arguments at
 		the specified number (e.g., :data:`1` or :data:`0`).

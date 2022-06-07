@@ -670,3 +670,201 @@ class Test(unittest.TestCase):
 		# Make sure desired SQL and parameters are created.
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
+
+	def test_5_format_to_named_collapsed_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 %% %s
+
+		to::
+
+			SELECT 5 % :_0
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('format', 'named', escape_char=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 %% %s;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % :_0;
+		"""
+		dest_params = {'_0': value}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_format_to_named_dollar_collapsed_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 %% %s
+
+		to::
+
+			SELECT 5 % $_0
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('format', 'named_dollar', escape_char=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 %% %s;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % $_0;
+		"""
+		dest_params = {'_0': value}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_format_to_pyformat_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 %% %s
+
+		to::
+
+			SELECT 5 %% %(_0)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('format', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 %% %s;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %(_0)s;
+		"""
+		dest_params = {'_0': value}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_qmark_to_named_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % ?
+
+		to::
+
+			SELECT 5 % :_0
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('qmark', 'named')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % ?;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % :_0;
+		"""
+		dest_params = {'_0': value}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_qmark_to_named_dollar_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % ?
+
+		to::
+
+			SELECT 5 % $_0
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('qmark', 'named_dollar')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % ?;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 % $_0;
+		"""
+		dest_params = {'_0': value}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_qmark_to_pyformat_unescaped_percent(self):
+		"""
+		Test converting from::
+
+			SELECT 5 % ?
+
+		to::
+
+			SELECT 5 %% %(_1)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('qmark', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT 5 % ?;
+		"""
+		value = 2
+		src_params = [value]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT 5 %% %(_0)s;
+		"""
+		dest_params = {'_0': value}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
