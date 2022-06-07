@@ -2,7 +2,7 @@
 # This Makefile is used to manage the the development virtual environment.
 #
 # Created: 2022-03-23
-# Updated: 2022-05-30
+# Updated: 2022-06-06
 #
 
 .PHONY: create-venv help update-venv venv-base venv-install
@@ -29,5 +29,5 @@ venv-base:
 
 venv-install:
 	${VENV} pip install --upgrade pip setuptools wheel
-	${VENV} pip install --upgrade tox
+	${VENV} pip install --upgrade tox twine
 	${VENV} pip install -e "${DEV_DIR}"
