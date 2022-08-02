@@ -3,7 +3,6 @@ include *.ini
 include *.py
 include *.rst
 include LICENSE
-exclude README.rst
 recursive-include doc *
 recursive-include tests *
 prune doc/build

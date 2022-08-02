@@ -1,0 +1,43 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools>=40.8.0", "wheel"]
+
+[project]
+authors = [
+	{name = "Caleb P. Burns", email = "cpburnz@gmail.com"},
+]
+classifiers = [
+	"Development Status :: 5 - Production/Stable",
+	"Intended Audience :: Developers",
+	"License :: OSI Approved :: MIT License",
+	"Operating System :: OS Independent",
+	"Programming Language :: Python",
+	"Programming Language :: Python :: 3",
+	"Programming Language :: Python :: 3.6",
+	"Programming Language :: Python :: 3.7",
+	"Programming Language :: Python :: 3.8",
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: Implementation :: CPython",
+	"Programming Language :: Python :: Implementation :: PyPy",
+	"Topic :: Database",
+	"Topic :: Software Development :: Libraries :: Python Modules",
+	"Topic :: Utilities",
+]
+description = "Convert between various DB API 2.0 parameter styles."
+dynamic = ["version"]
+license = {text = "MIT License"}
+name = "sqlparams"
+readme = "README-dist.rst"
+requires-python = ">=3.6"
+
+[project.urls]
+"Source Code" = "https://github.com/cpburnz/python-sql-parameters"
+"Documentation" = "https://python-sql-parameters.readthedocs.io/en/latest/index.html"
+"Issue Tracker" = "https://github.com/cpburnz/python-sql-parameters/issues"
+
+[tool.setuptools]
+packages = ["sqlparams"]
+
+[tool.setuptools.dynamic]
+version = {attr = "sqlparams._meta.__version__"}
