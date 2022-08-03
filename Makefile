@@ -2,7 +2,7 @@
 # This Makefile is used to manage development and distribution.
 #
 # Created: 2022-08-01
-# Updated: 2022-08-01
+# Updated: 2022-08-02
 #
 
 .PHONY: build create-venv help prebuild publish test update-venv
@@ -69,6 +69,7 @@ dev-venv-install:
 .PHONY: dist-build dist-prebuild dist-publish
 
 dist-build: prebuild
+	find ./dist -type f -delete
 	${VENV} python -m build
 
 dist-prebuild:
