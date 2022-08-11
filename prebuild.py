@@ -1,5 +1,5 @@
 """
-This script generates files required for source and
+This script generates files required for source and wheel distributions.
 """
 
 import argparse

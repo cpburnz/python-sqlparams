@@ -106,6 +106,18 @@ Change History
 ==============
 
 
+5.0.0 (TBD)
+------------------
+
+- Changed build system to `pyproject.toml`_ and build backend to `setuptools.build_meta`_ which may have unforeseen consequences.
+- `Issue #9`_: Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments. {{ WARNING: WIP. DO NOT RELEASE. }}
+
+.. _`pyproject.toml`: https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml/
+.. _`setuptools.build_meta`: https://setuptools.pypa.io/en/latest/build_meta.html
+.. _`Issue #9`: https://github.com/cpburnz/python-sql-parameters/issues/9
+
+
+
 4.0.0 (2022-06-06)
 ------------------
 

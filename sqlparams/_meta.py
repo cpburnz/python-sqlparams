@@ -10,6 +10,7 @@ __credits__ = [
 	"ryokash <https://github.com/ryokash>",
 	"zenwalker <https://github.com/zenwalker>",
 	"kesmit13 <https://github.com/kesmit13>",
+	"sergey-shambir <https://github.com/sergey-shambir>",
 ]
 __license__ = "MIT License"
-__version__ = "4.0.1.dev1"
+__version__ = "5.0.0.dev1"

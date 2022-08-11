@@ -4,16 +4,16 @@ This module contains internal classes for defining parameter styles.
 
 from typing import Dict
 
-_STYLES: Dict[str, '_Style'] = {}
+STYLES: Dict[str, 'Style'] = {}
 """
 Maps parameter style by name.
 """
 
 
-class _Style(object):
+class Style(object):
 	"""
-	The :class:`._Style` class is the base class used to define a
-	parameter style.
+	The :class:`.Style` class is the base class used to define a parameter
+	style.
 	"""
 
 	def __init__(
@@ -25,7 +25,7 @@ class _Style(object):
 		param_regex: str,
 	) -> None:
 		"""
-		Initializes the :class:`._Style` instances.
+		Initializes the :class:`.Style` instances.
 		"""
 
 		self.escape_char: str = escape_char
@@ -58,23 +58,23 @@ class _Style(object):
 		"""
 
 
-class _NamedStyle(_Style):
+class NamedStyle(Style):
 	"""
-	The :class:`._NamedStyle` class is used to define a named parameter
+	The :class:`.NamedStyle` class is used to define a named parameter
 	style.
 	"""
 	pass
 
 
-class _NumericStyle(_Style):
+class NumericStyle(Style):
 	"""
-	The :class:`._NumericStyle` class is used to define a numeric
-	parameter style.
+	The :class:`.NumericStyle` class is used to define a numeric parameter
+	style.
 	"""
 
 	def __init__(self, start: int, **kw) -> None:
 		"""
-		Initializes the :class:`._NumericStyle` instances.
+		Initializes the :class:`.NumericStyle` instances.
 		"""
 		super().__init__(**kw)
 
@@ -85,16 +85,16 @@ class _NumericStyle(_Style):
 		"""
 
 
-class _OrdinalStyle(_Style):
+class OrdinalStyle(Style):
 	"""
-	The :class:`._OrdinalStyle` class is used to define an ordinal
+	The :class:`.OrdinalStyle` class is used to define an ordinal
 	parameter style.
 	"""
 	pass
 
 
 # Define standard "format" parameter style.
-_STYLES['format'] = _OrdinalStyle(
+STYLES['format'] = OrdinalStyle(
 	name="format",
 	escape_char="%",
 	escape_regex="(?P<escape>{char}%)",
@@ -103,7 +103,7 @@ _STYLES['format'] = _OrdinalStyle(
 )
 
 # Define standard "named" parameter style.
-_STYLES['named'] = _NamedStyle(
+STYLES['named'] = NamedStyle(
 	name="named",
 	escape_char=":",
 	escape_regex="(?P<escape>{char}:)",
@@ -112,7 +112,7 @@ _STYLES['named'] = _NamedStyle(
 )
 
 # Define non-standard "named_dollar" parameter style.
-_STYLES['named_dollar'] = _NamedStyle(
+STYLES['named_dollar'] = NamedStyle(
 	name="named_dollar",
 	escape_char="$",
 	escape_regex="(?P<escape>{char}\\$)",
@@ -121,7 +121,7 @@ _STYLES['named_dollar'] = _NamedStyle(
 )
 
 # Define standard "numeric" parameter style.
-_STYLES['numeric'] = _NumericStyle(
+STYLES['numeric'] = NumericStyle(
 	name="numeric",
 	escape_char=":",
 	escape_regex="(?P<escape>{char}:)",
@@ -131,7 +131,7 @@ _STYLES['numeric'] = _NumericStyle(
 )
 
 # Define non-standard "numeric_dollar" parameter style.
-_STYLES['numeric_dollar'] = _NumericStyle(
+STYLES['numeric_dollar'] = NumericStyle(
 	name="numeric_dollar",
 	escape_char="$",
 	escape_regex="(?P<escape>{char}\\$)",
@@ -141,7 +141,7 @@ _STYLES['numeric_dollar'] = _NumericStyle(
 )
 
 # Define standard "pyformat" parameter style.
-_STYLES['pyformat'] = _NamedStyle(
+STYLES['pyformat'] = NamedStyle(
 	name="pyformat",
 	escape_char="%",
 	escape_regex="(?P<escape>{char}%)",
@@ -150,7 +150,7 @@ _STYLES['pyformat'] = _NamedStyle(
 )
 
 # Define standard "qmark" parameter style.
-_STYLES['qmark'] = _OrdinalStyle(
+STYLES['qmark'] = OrdinalStyle(
 	name="qmark",
 	escape_char="?",
 	escape_regex="(?P<escape>{char}\\?)",

@@ -19,7 +19,7 @@ from typing import (
 
 from . import _converting
 from . import _styles
-from ._util import _is_iterable
+from . import _util
 
 from ._meta import (
 	__author__,
@@ -34,9 +34,14 @@ _BYTES_ENCODING = 'latin1'
 The encoding to use when parsing a byte query string.
 """
 
-_STYLES = {}
+DEFAULT_COMMENTS: Sequence[Union[str, Tuple[str, str]]] = (
+	("/*", "*/"),
+	"--",
+)
 """
-Maps parameter style by name.
+The default comment styles to strip. This strips single line comments
+beginning with :data:`"--"` and multiline comments beginning with
+:data:`"/*"` and ending with :data:`"*/"`.
 """
 
 
@@ -59,6 +64,7 @@ class SQLParams(object):
 		out_style: str,
 		escape_char: Union[str, bool, None] = None,
 		expand_tuples: Optional[bool] = None,
+		strip_comments: Union[Sequence[Union[str, Tuple[str, str]]], bool, None] = None,
 	) -> None:
 		"""
 		Instantiates the :class:`.SQLParams` instance.
@@ -70,7 +76,7 @@ class SQLParams(object):
 		will be converted to.
 
 		*escape_char* (:class:`str`, :class:`bool`, or :data:`None`) is the
-		escape character used to prevent matching a in-style parameter. If
+		escape character used to prevent matching an in-style parameter. If
 		:data:`True`, use the default escape character (repeat the initial
 		character to escape it; e.g., "%%"). If :data:`False`, do not use an
 		escape character. Default is :data:`None` for :data:`False`.
@@ -81,6 +87,19 @@ class SQLParams(object):
 		compatibility). If *out_style* is a numeric or ordinal style, expand
 		tuples by default (:data:`True`). If *out_style* is a named style,
 		do not expand tuples by default (:data:`False`).
+
+		*strip_comments* (:class:`Sequence`, :class:`bool`, or :data:`None`)
+		whether to strip out comments and what style of comments to remove.
+		If a :class:`Sequence`, this defines the comment styles. A single
+		line comment is defined using a :class:`str` (e.g., :data:`"--"` or
+		:data:`"#"`). A multiline comment is defined using a :class:`tuple`
+		of :class:`str` (e.g., :data:`("/*", "*/")`). In order for a comment
+		to be matched, it must be the first string of non-whitespace
+		characters on the line. Trailing comments are not supported and will
+		be ignored. A multiline comment will consume characters until the
+		ending string is matched. If :data:`True`, :data:`DEFAULT_COMMENTS`
+		will be used (:data:`"--"` and :data:`("/*", "*/")` styles). Default
+		is :data:`None` to not remove comments.
 
 		The following parameter styles are supported by both *in_style* and
 		*out_style*:
@@ -152,66 +171,17 @@ class SQLParams(object):
 		.. _`Python identifiers`: https://docs.python.org/3/reference/lexical_analysis.html#identifiers
 		"""
 
-		self._converter: _converting._Converter = None
-		"""
-		*_converter* (:class:`._converting._Converter`) is the parameter
-		converter to use.
-		"""
-
-		self._escape_char: Optional[str] = None
-		"""
-		*_escape_char* (:class:`str` or :data:`None`) is the escape
-		character used to prevent matching a in-style parameter.
-		"""
-
-		self._expand_tuples: bool = None
-		"""
-		*_expand_tuples* (:class:`bool`) is whether to convert tuples into a
-		sequence of parameters.
-		"""
-
-		self._in_obj: _styles._Style = None
-		"""
-		*_in_obj* (:class:`._styles._Style`) is the in-style parameter object.
-		"""
-
-		self._in_regex: Pattern = None
-		"""
-		*_in_regex* (:class:`re.Pattern`) is the regular expression used to
-		extract the in-style parameters.
-		"""
-
-		self._in_style: str = None
-		"""
-		*_in_style* (:class:`str`) is the parameter style that will be used
-		in an SQL query before being parsed and converted to :attr:`.SQLParams.out_style`.
-		"""
-
-		self._out_obj: _styles._Style = None
-		"""
-		*_out_obj* (:class:`._styles._Style`) is the out-style parameter object.
-		"""
-
-		self._out_style: str = None
-		"""
-		*_out_style* (:class:`str`) is the parameter style that the SQL query
-		will be converted to.
-		"""
-
 		if not isinstance(in_style, str):
 			raise TypeError("in_style:{!r} is not a string.".format(in_style))
 
 		if not isinstance(out_style, str):
 			raise TypeError("out_style:{!r} is not a string.".format(out_style))
 
-		self._in_style = in_style
-		self._out_style = out_style
-
-		self._in_obj = _styles._STYLES[self._in_style]
-		self._out_obj = _styles._STYLES[self._out_style]
+		in_obj = _styles.STYLES[in_style]
+		out_obj = _styles.STYLES[out_style]
 
 		if escape_char is True:
-			use_char = self._in_obj.escape_char
+			use_char = in_obj.escape_char
 		elif not escape_char:
 			use_char = None
 		elif isinstance(escape_char, str):
@@ -220,102 +190,273 @@ class SQLParams(object):
 			raise TypeError("escape_char:{!r} is not a string or bool.")
 
 		if expand_tuples is None:
-			expand_tuples = not isinstance(self._out_obj, _styles._NamedStyle)
+			expand_tuples = not isinstance(out_obj, _styles.NamedStyle)
+		else:
+			expand_tuples = bool(expand_tuples)
 
-		self._escape_char = use_char
-		self._expand_tuples = bool(expand_tuples)
+		if strip_comments is True:
+			strip_comments = DEFAULT_COMMENTS
+		elif strip_comments is False:
+			strip_comments = None
 
-		self._in_regex = self._create_in_regex()
-		self._converter = self._create_converter()
+		in_regex = self.__create_in_regex(
+			escape_char=use_char,
+			in_obj=in_obj,
+			out_obj=out_obj,
+		)
+
+		self.__converter: _converting.Converter = self.__create_converter(
+			escape_char=use_char,
+			expand_tuples=expand_tuples,
+			in_obj=in_obj,
+			in_regex=in_regex,
+			in_style=in_style,
+			out_obj=out_obj,
+			out_style=out_style,
+		)
+		"""
+		*__converter* (:class:`._converting.Converter`) is the parameter
+		converter to use.
+		"""
+
+		self.__escape_char: Optional[str] = use_char
+		"""
+		*__escape_char* (:class:`str` or :data:`None`) is the escape
+		character used to prevent matching an in-style parameter.
+		"""
+
+		self.__expand_tuples: bool = expand_tuples
+		"""
+		*__expand_tuples* (:class:`bool`) is whether to convert tuples into
+		a sequence of parameters.
+		"""
+
+		self.__in_obj: _styles.Style = in_obj
+		"""
+		*__in_obj* (:class:`._styles.Style`) is the in-style parameter
+		object.
+		"""
+
+		self.__in_regex: Pattern = in_regex
+		"""
+		*__in_regex* (:class:`re.Pattern`) is the regular expression used to
+		extract the in-style parameters.
+		"""
+
+		self.__in_style: str = in_style
+		"""
+		*__in_style* (:class:`str`) is the parameter style that will be used
+		in an SQL query before being parsed and converted to :attr:`.SQLParams.out_style`.
+		"""
+
+		self.__out_obj: _styles.Style = out_obj
+		"""
+		*__out_obj* (:class:`._styles.Style`) is the out-style parameter
+		object.
+		"""
+
+		self.__out_style: str = out_style
+		"""
+		*__out_style* (:class:`str`) is the parameter style that the SQL
+		query will be converted to.
+		"""
+
+		self.__strip_comment_regexes: List[Pattern] = self.__create_strip_comment_regexes(
+			strip_comments=strip_comments,
+		)
+		"""
+		*__strip_comment_regexes* (:class:`list` of :class:`Pattern`)
+		contains the regular expressions to strip out comments.
+		"""
+
+		self.__strip_comments: Optional[Sequence[Union[str, Tuple[str, str]]]] = strip_comments
+		"""
+		*__strip_comments* (:class:`Sequence` or :data:`None`) contains the
+		comment styles to remove.
+		"""
 
 	def __repr__(self) -> str:
 		"""
 		Returns the canonical string representation (:class:`str`) of this
 		instance.
 		"""
-		return "{}.{}({!r}, {!r})".format(self.__class__.__module__, self.__class__.__name__, self._in_style, self._out_style)
+		return "{}.{}({!r}, {!r})".format(
+			self.__class__.__module__,
+			self.__class__.__name__,
+			self.__in_style,
+			self.__out_style,
+		)
 
-	def _create_converter(self) -> _converting._Converter:
+	@staticmethod
+	def __create_converter(
+		escape_char: Optional[str],
+		expand_tuples: bool,
+		in_obj: _styles.Style,
+		in_regex: Pattern,
+		in_style: str,
+		out_obj: _styles.Style,
+		out_style: str,
+	) -> _converting.Converter:
 		"""
 		Create the parameter style converter.
 
-		Returns the parameter style converter (:class:`._converting._Converter`).
+		*escape_char* (:class:`str` or :data:`None`) is the escape character
+		used to prevent matching an in-style parameter.
+
+		*expand_tuples* (:class:`bool`) is whether to convert tuples into a
+		sequence of parameters.
+
+		*in_obj* (:class:`._styles.Style`) is the in-style parameter object.
+
+		*in_style* (:class:`str`) is the in-style name.
+
+		*in_regex* (:class:`re.Pattern`) is the regular expression used to
+		extract the in-style parameters.
+
+		*out_obj* (:class:`._styles.Style`) is the out-style parameter
+		object.
+
+		*out_style* (:class:`str`) is the out-style name.
+
+		Returns the parameter style converter (:class:`._converting.Converter`).
 		"""
-		assert self._in_regex is not None, self._in_regex
-		assert self._out_obj is not None, self._out_obj
-
 		# Determine converter class.
-		converter_class: Type[_converting._Converter]
-		if isinstance(self._in_obj, _styles._NamedStyle):
-			if isinstance(self._out_obj, _styles._NamedStyle):
-				converter_class = _converting._NamedToNamedConverter
-			elif isinstance(self._out_obj, _styles._NumericStyle):
-				converter_class = _converting._NamedToNumericConverter
-			elif isinstance(self._out_obj, _styles._OrdinalStyle):
-				converter_class = _converting._NamedToOrdinalConverter
+		converter_class: Type[_converting.Converter]
+		if isinstance(in_obj, _styles.NamedStyle):
+			if isinstance(out_obj, _styles.NamedStyle):
+				converter_class = _converting.NamedToNamedConverter
+			elif isinstance(out_obj, _styles.NumericStyle):
+				converter_class = _converting.NamedToNumericConverter
+			elif isinstance(out_obj, _styles.OrdinalStyle):
+				converter_class = _converting.NamedToOrdinalConverter
 			else:
-				raise TypeError("out_style:{!r} maps to an unexpected type: {!r}".format(self._out_style, self._out_obj))
+				raise TypeError("out_style:{!r} maps to an unexpected type: {!r}".format(
+					out_style,
+					out_obj,
+				))
 
-		elif isinstance(self._in_obj, _styles._NumericStyle):
-			if isinstance(self._out_obj, _styles._NamedStyle):
-				converter_class = _converting._NumericToNamedConverter
-			elif isinstance(self._out_obj, _styles._NumericStyle):
-				converter_class = _converting._NumericToNumericConverter
-			elif isinstance(self._out_obj, _styles._OrdinalStyle):
-				converter_class = _converting._NumericToOrdinalConverter
+		elif isinstance(in_obj, _styles.NumericStyle):
+			if isinstance(out_obj, _styles.NamedStyle):
+				converter_class = _converting.NumericToNamedConverter
+			elif isinstance(out_obj, _styles.NumericStyle):
+				converter_class = _converting.NumericToNumericConverter
+			elif isinstance(out_obj, _styles.OrdinalStyle):
+				converter_class = _converting.NumericToOrdinalConverter
 			else:
-				raise TypeError("out_style:{!r} maps to an unexpected type: {!r}".format(self._out_style, self._out_obj))
+				raise TypeError("out_style:{!r} maps to an unexpected type: {!r}".format(
+					out_style,
+					out_obj,
+				))
 
-		elif isinstance(self._in_obj, _styles._OrdinalStyle):
-			if isinstance(self._out_obj, _styles._NamedStyle):
-				converter_class = _converting._OrdinalToNamedConverter
-			elif isinstance(self._out_obj, _styles._NumericStyle):
-				converter_class = _converting._OrdinalToNumericConverter
-			elif isinstance(self._out_obj, _styles._OrdinalStyle):
-				converter_class = _converting._OrdinalToOrdinalConverter
+		elif isinstance(in_obj, _styles.OrdinalStyle):
+			if isinstance(out_obj, _styles.NamedStyle):
+				converter_class = _converting.OrdinalToNamedConverter
+			elif isinstance(out_obj, _styles.NumericStyle):
+				converter_class = _converting.OrdinalToNumericConverter
+			elif isinstance(out_obj, _styles.OrdinalStyle):
+				converter_class = _converting.OrdinalToOrdinalConverter
 			else:
-				raise TypeError("out_style:{!r} maps to an unexpected type: {!r}".format(self._out_style, self._out_obj))
+				raise TypeError("out_style:{!r} maps to an unexpected type: {!r}".format(
+					out_style,
+					out_obj,
+				))
 
 		else:
-			raise TypeError("in_style:{!r} maps to an unexpected type: {!r}".format(self._in_style, self._in_obj))
+			raise TypeError("in_style:{!r} maps to an unexpected type: {!r}".format(
+				in_style,
+				in_obj,
+			))
 
 		# Create converter.
 		converter = converter_class(
-			escape_char=self._escape_char,
-			expand_tuples=self._expand_tuples,
-			in_regex=self._in_regex,
-			in_style=self._in_obj,
-			out_style=self._out_obj,
+			escape_char=escape_char,
+			expand_tuples=expand_tuples,
+			in_regex=in_regex,
+			in_style=in_obj,
+			out_style=out_obj,
 		)
 		return converter
 
-	def _create_in_regex(self) -> Pattern:
+	@staticmethod
+	def __create_in_regex(
+		escape_char: str,
+		in_obj: _styles.Style,
+		out_obj: _styles.Style,
+	) -> Pattern:
 		"""
 		Create the in-style parameter regular expression.
+
+		*escape_char* (:class:`str` or :data:`None`) is the escape character
+		sed to prevent matching an in-style parameter.
+
+		*in_obj* (:class:`._styles.Style`) is the in-style parameter object.
+
+		*out_obj* (:class:`._styles.Style`) is the out-style parameter
+		object.
 
 		Returns the in-style parameter regular expression (:class:`re.Pattern`).
 		"""
 		regex_parts = []
 
-		if self._in_obj.escape_char != "%" and self._out_obj.escape_char == "%":
+		if in_obj.escape_char != "%" and out_obj.escape_char == "%":
 			regex_parts.append("(?P<out_percent>%)")
 
-		if self._escape_char:
+		if escape_char:
 			# Escaping is enabled.
-			escape = self._in_obj.escape_regex.format(char=re.escape(self._escape_char))
+			escape = in_obj.escape_regex.format(char=re.escape(escape_char))
 			regex_parts.append(escape)
 
-		regex_parts.append(self._in_obj.param_regex)
+		regex_parts.append(in_obj.param_regex)
 
 		return re.compile("|".join(regex_parts))
+
+	@staticmethod
+	def __create_strip_comment_regexes(
+		strip_comments: Optional[Sequence[Union[str, Tuple[str, str]]]],
+	) -> List[Pattern]:
+		"""
+		Create the regular expressions to strip comments.
+
+		*strip_comments* (:class:`Sequence` or :data:`None`) contains the
+		comment styles to remove.
+
+		Returns the regular expressions (:class:`list` of :class:`re.Pattern`).
+		"""
+		if strip_comments is None:
+			return []
+
+		out_regexes = []
+		for i, comment_style in enumerate(strip_comments):
+			if isinstance(comment_style, str):
+				# Compile regular expression to strip single line comment.
+				out_regexes.append(re.compile("^\\s*{comment}.*$".format(
+					comment=re.escape(comment_style),
+				), re.M))
+
+			elif _util.is_sequence(comment_style):
+				# Compile regular expression to strip multiline comment.
+				start_comment, end_comment = comment_style  # type: str
+				out_regexes.append(re.compile("^\\s*{start}.*?{end}".format(
+					start=re.escape(start_comment),
+					end=re.escape(end_comment),
+				), re.DOTALL | re.M))
+				pass
+
+			else:
+				raise TypeError("strip_comments[{}]:{!r} must be either a str or tuple.".format(
+					i,
+					comment_style,
+				))
+
+		return out_regexes
 
 	@property
 	def escape_char(self) -> Optional[str]:
 		"""
 		*escape_char* (:class:`str` or :data:`None`) is the escape character
-		used to prevent matching a in-style parameter.
+		used to prevent matching an in-style parameter.
 		"""
-		return self._escape_char
+		return self.__escape_char
 
 	@property
 	def expand_tuples(self) -> bool:
@@ -323,7 +464,7 @@ class SQLParams(object):
 		*expand_tuples* (:class:`bool`) is whether to convert tuples into a
 		sequence of parameters.
 		"""
-		return self._expand_tuples
+		return self.__expand_tuples
 
 	def format(
 		self,
@@ -360,8 +501,11 @@ class SQLParams(object):
 		else:
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
 
+		# Strip comments.
+		use_sql = self.__strip_comments_from_sql(use_sql)
+
 		# Replace in-style with out-style parameters.
-		use_sql, out_params = self._converter.convert(use_sql, params)
+		use_sql, out_params = self.__converter.convert(use_sql, params)
 
 		# Make sure the query is returned as the proper string type.
 		if string_type is bytes:
@@ -410,11 +554,14 @@ class SQLParams(object):
 		else:
 			raise TypeError("sql:{!r} is not a unicode or byte string.".format(sql))
 
-		if not _is_iterable(many_params):
+		if not _util.is_iterable(many_params):
 			raise TypeError("many_params:{!r} is not iterable.".format(many_params))
 
+		# Strip comments.
+		use_sql = self.__strip_comments_from_sql(use_sql)
+
 		# Replace in-style with out-style parameters.
-		use_sql, many_out_params = self._converter.convert_many(use_sql, many_params)
+		use_sql, many_out_params = self.__converter.convert_many(use_sql, many_params)
 
 		# Make sure the query is returned as the proper string type.
 		if string_type is bytes:
@@ -431,7 +578,7 @@ class SQLParams(object):
 		*in_style* (:class:`str`) is the parameter style to expect in an SQL
 		query when being parsed.
 		"""
-		return self._in_style
+		return self.__in_style
 
 	@property
 	def out_style(self) -> str:
@@ -439,4 +586,26 @@ class SQLParams(object):
 		*out_style* (:class:`str`) is the parameter style that the SQL query
 		will be converted to.
 		"""
-		return self._out_style
+		return self.__out_style
+
+	@property
+	def strip_comments(self) -> Optional[Sequence[Union[str, Tuple[str, str]]]]:
+		"""
+		*strip_comments* (:class:`Sequence` or :data:`None`) contains the
+		comment styles to remove.
+		"""
+		return self.__strip_comments
+
+	def __strip_comments_from_sql(self, sql: str) -> str:
+		"""
+		Strip comments from the SQL.
+
+		*sql* (:class:`str`) is the SQL query.
+
+		Returns the stripped SQL query (:class:`str`).
+		"""
+		out_sql = sql
+		for comment_regex in self.__strip_comment_regexes:
+			out_sql = comment_regex.sub("", out_sql)
+
+		return out_sql

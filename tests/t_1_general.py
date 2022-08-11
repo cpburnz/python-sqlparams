@@ -217,3 +217,212 @@ class Test(unittest.TestCase):
 		# Make sure desired SQL and parameters are created.
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_mixed(self) -> None:
+		"""
+		Test a potentially strange scenario with mixed comments.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			/*
+			-- Parameters:
+			--   :start_date
+			--   :end_date */
+			SELECT * FROM users WHERE updated_at BETWEEN :start_date AND :end_date
+		"""
+		src_params = {'start_date': "2021-10-21", 'end_date': "2022-08-10"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT * FROM users WHERE updated_at BETWEEN ? AND ?
+		"""
+		dest_params = [src_params['start_date'], src_params['end_date']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_multi(self) -> None:
+		"""
+		Test a query stripping multiline comments.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			/*
+			Parameters:
+			  :start_date
+			  :end_date
+			*/
+			SELECT * FROM users WHERE updated_at BETWEEN :start_date AND :end_date
+		"""
+		src_params = {'start_date': "2021-10-21", 'end_date': "2022-08-10"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT * FROM users WHERE updated_at BETWEEN ? AND ?
+		"""
+		dest_params = [src_params['start_date'], src_params['end_date']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_multi_greedy(self) -> None:
+		"""
+		Test to make sure multiline comments are not greedy.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			/*
+			Parameters:
+			  :start_date
+			  :end_date
+			*/
+			*/
+			SELECT * FROM users WHERE updated_at BETWEEN :start_date AND :end_date
+		"""
+		src_params = {'start_date': "2021-10-21", 'end_date': "2022-08-10"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			*/
+			SELECT * FROM users WHERE updated_at BETWEEN ? AND ?
+		"""
+		dest_params = [src_params['start_date'], src_params['end_date']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_multi_last(self) -> None:
+		"""
+		Test to make sure a multiline comment at the end of the string is
+		handled properly.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT * FROM users
+			/* Last line. */
+		""".rstrip()
+		src_params = {}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT * FROM users
+		""".rstrip() + "\n"
+		dest_params = []
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_single(self) -> None:
+		"""
+		Test a query stripping single line comments.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			-- Parameters:
+			--   :start_date
+			--   :end_date
+			SELECT * FROM users WHERE updated_at BETWEEN :start_date AND :end_date
+		"""
+		src_params = {'start_date': "2021-10-21", 'end_date': "2022-08-10"}
+
+		# Desired SQL and params.
+		dest_sql = """
+
+
+			SELECT * FROM users WHERE updated_at BETWEEN ? AND ?
+		"""
+		dest_params = [src_params['start_date'], src_params['end_date']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_single_last(self) -> None:
+		"""
+		Test to make sure single line comment at the end of the string is
+		handled properly.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT * FROM users
+			-- Last line.
+		""".rstrip()
+		src_params = {}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT * FROM users
+		""".rstrip() + "\n"
+		dest_params = []
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_5_strip_comments_single_trailing(self) -> None:
+		"""
+		Test to make sure single line comments do not consume trailing
+		comments.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			-- Stripped comment.
+			SELECT * FROM users -- Trailing comment.
+		"""
+		src_params = {}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT * FROM users -- Trailing comment.
+		"""
+		dest_params = []
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)

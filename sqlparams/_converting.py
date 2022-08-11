@@ -20,12 +20,12 @@ from typing import (
 	Union)
 
 from . import _styles
-from ._util import _is_sequence
+from ._util import is_sequence
 
 
-class _Converter(object):
+class Converter(object):
 	"""
-	The :class:`._Converter` class is the base class for implementing the
+	The :class:`.Converter` class is the base class for implementing the
 	conversion from one in-style parameter to another out-style parameter.
 	"""
 
@@ -34,11 +34,11 @@ class _Converter(object):
 		escape_char: Optional[str],
 		expand_tuples: bool,
 		in_regex: Pattern[str],
-		in_style: _styles._Style,
-		out_style: _styles._Style,
+		in_style: _styles.Style,
+		out_style: _styles.Style,
 	) -> None:
 		"""
-		Initializes the :class:`._Converter` instance.
+		Initializes the :class:`.Converter` instance.
 		"""
 
 		self._escape_start = len(escape_char) if escape_char is not None else 0
@@ -59,9 +59,9 @@ class _Converter(object):
 		extract the in-style parameters.
 		"""
 
-		self._in_style: _styles._Style = in_style
+		self._in_style: _styles.Style = in_style
 		"""
-		*_in_style* (:class:`._styles._Style`) is the in-style to use.
+		*_in_style* (:class:`._styles.Style`) is the in-style to use.
 		"""
 
 		self._out_format = out_style.out_format
@@ -70,9 +70,9 @@ class _Converter(object):
 		string.
 		"""
 
-		self._out_style: _styles._Style = out_style
+		self._out_style: _styles.Style = out_style
 		"""
-		*_out_style* (:class:`._styles._Style`) is the out-style to use.
+		*_out_style* (:class:`._styles.Style`) is the out-style to use.
 		"""
 
 	def convert(
@@ -117,19 +117,19 @@ class _Converter(object):
 		raise NotImplementedError("{} must implement convert_many().".format(self.__class__.__qualname__))
 
 
-class _NamedConverter(_Converter):
+class NamedConverter(Converter):
 	"""
-	The :class:`_NamedConverter` class is the base class for implementing
+	The :class:`NamedConverter` class is the base class for implementing
 	the conversion from one named in-style parameter to another out-style
 	parameter.
 	"""
 
-	_in_style: _styles._NamedStyle
+	_in_style: _styles.NamedStyle
 
 
-class _NamedToNamedConverter(_NamedConverter):
+class NamedToNamedConverter(NamedConverter):
 	"""
-	The :class:`._NamedToNamedConverter` class is used to convert named
+	The :class:`.NamedToNamedConverter` class is used to convert named
 	in-style parameters to named out-style parameters.
 	"""
 
@@ -341,17 +341,17 @@ class _NamedToNamedConverter(_NamedConverter):
 				return out_repl
 
 
-class _NamedToNumericConverter(_NamedConverter):
+class NamedToNumericConverter(NamedConverter):
 	"""
-	The :class:`._NamedToNumericConverter` class is used to convert named
+	The :class:`.NamedToNumericConverter` class is used to convert named
 	in-style parameters to numeric out-style parameters.
 	"""
 
-	_out_style: _styles._NumericStyle
+	_out_style: _styles.NumericStyle
 
 	def __init__(self, **kw) -> None:
 		"""
-		Initializes the :class:`._NamedToNumericConverter` instance.
+		Initializes the :class:`.NamedToNumericConverter` instance.
 		"""
 		super().__init__(**kw)
 
@@ -608,13 +608,13 @@ class _NamedToNumericConverter(_NamedConverter):
 				return out_repl
 
 
-class _NamedToOrdinalConverter(_NamedConverter):
+class NamedToOrdinalConverter(NamedConverter):
 	"""
-	The :class:`._NamedToOrdinalConverter` class is used to convert named
+	The :class:`.NamedToOrdinalConverter` class is used to convert named
 	in-style parameters to ordinal out-style parameters.
 	"""
 
-	_out_style: _styles._OrdinalStyle
+	_out_style: _styles.OrdinalStyle
 
 	def convert(
 		self,
@@ -821,18 +821,18 @@ class _NamedToOrdinalConverter(_NamedConverter):
 				return out_format
 
 
-class _NumericConverter(_Converter):
+class NumericConverter(Converter):
 	"""
-	The :class:`._NumericConverter` class is the base class for
+	The :class:`.NumericConverter` class is the base class for
 	implementing the conversion from one numeric in-style parameter to
 	another out-style parameter.
 	"""
 
-	_in_style: _styles._NumericStyle
+	_in_style: _styles.NumericStyle
 
 	def __init__(self, **kw) -> None:
 		"""
-		Initializes the :class:`._NumericConverter` instance.
+		Initializes the :class:`.NumericConverter` instance.
 		"""
 		super().__init__(**kw)
 
@@ -862,13 +862,13 @@ class _NumericConverter(_Converter):
 		}
 
 
-class _NumericToNamedConverter(_NumericConverter):
+class NumericToNamedConverter(NumericConverter):
 	"""
-	The :class:`._NumericToNamedConverter` class is used to convert
-	numeric in-style parameters to named out-style parameters.
+	The :class:`.NumericToNamedConverter` class is used to convert numeric
+	in-style parameters to named out-style parameters.
 	"""
 
-	_out_style: _styles._NamedStyle
+	_out_style: _styles.NamedStyle
 
 	def convert(
 		self,
@@ -887,7 +887,7 @@ class _NumericToNamedConverter(_NumericConverter):
 		Returns a :class:`tuple` containing: the converted SQL query
 		(:class:`str`), and the out-style parameters (:class:`dict`).
 		"""
-		if _is_sequence(params):
+		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
@@ -925,7 +925,7 @@ class _NumericToNamedConverter(_NumericConverter):
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
-		if _is_sequence(first_params):
+		if is_sequence(first_params):
 			pass
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
@@ -970,7 +970,7 @@ class _NumericToNamedConverter(_NumericConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i:
-				if _is_sequence(in_params):
+				if is_sequence(in_params):
 					pass
 				elif isinstance(in_params, Mapping):
 					in_params = self._mapping_as_sequence(in_params)  # noqa
@@ -1096,17 +1096,17 @@ class _NumericToNamedConverter(_NumericConverter):
 				return out_repl
 
 
-class _NumericToNumericConverter(_NumericConverter):
+class NumericToNumericConverter(NumericConverter):
 	"""
-	The :class:`._NumericToNumericConverter` class is used to convert
+	The :class:`.NumericToNumericConverter` class is used to convert
 	numeric in-style parameters to numeric out-style parameters.
 	"""
 
-	_out_style: _styles._NumericStyle
+	_out_style: _styles.NumericStyle
 
 	def __init__(self, **kw) -> None:
 		"""
-		Initializes the :class:`._NumericToNumericConverter` instance.
+		Initializes the :class:`.NumericToNumericConverter` instance.
 		"""
 		super().__init__(**kw)
 
@@ -1133,7 +1133,7 @@ class _NumericToNumericConverter(_NumericConverter):
 		Returns a :class:`tuple` containing: the converted SQL query
 		(:class:`str`), and the out-style parameters (:class:`list`).
 		"""
-		if _is_sequence(params):
+		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
@@ -1173,7 +1173,7 @@ class _NumericToNumericConverter(_NumericConverter):
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
-		if _is_sequence(first_params):
+		if is_sequence(first_params):
 			pass
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
@@ -1224,7 +1224,7 @@ class _NumericToNumericConverter(_NumericConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i:
-				if _is_sequence(in_params):
+				if is_sequence(in_params):
 					pass
 				elif isinstance(in_params, Mapping):
 					in_params = self._mapping_as_sequence(in_params)  # noqa
@@ -1377,13 +1377,13 @@ class _NumericToNumericConverter(_NumericConverter):
 				return out_repl
 
 
-class _NumericToOrdinalConverter(_NumericConverter):
+class NumericToOrdinalConverter(NumericConverter):
 	"""
-	The :class:`._NumericToOrdinalConverter` class is used to convert
+	The :class:`.NumericToOrdinalConverter` class is used to convert
 	numeric in-style parameters to ordinal out-style parameters.
 	"""
 
-	_out_style: _styles._OrdinalStyle
+	_out_style: _styles.OrdinalStyle
 
 	def convert(
 		self,
@@ -1402,7 +1402,7 @@ class _NumericToOrdinalConverter(_NumericConverter):
 		Returns a :class:`tuple` containing: the converted SQL query
 		(:class:`str`), and the out-style parameters (:class:`list`).
 		"""
-		if _is_sequence(params):
+		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
@@ -1441,7 +1441,7 @@ class _NumericToOrdinalConverter(_NumericConverter):
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
-		if _is_sequence(first_params):
+		if is_sequence(first_params):
 			pass
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
@@ -1487,7 +1487,7 @@ class _NumericToOrdinalConverter(_NumericConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i:
-				if _is_sequence(in_params):
+				if is_sequence(in_params):
 					pass
 				elif isinstance(in_params, Mapping):
 					in_params = self._mapping_as_sequence(in_params)  # noqa
@@ -1604,9 +1604,9 @@ class _NumericToOrdinalConverter(_NumericConverter):
 				return out_format
 
 
-class _OrdinalConverter(_Converter):
+class OrdinalConverter(Converter):
 	"""
-	The :class:`._OrdinalConverter` class is the base class for
+	The :class:`.OrdinalConverter` class is the base class for
 	implementing the conversion from one ordinal in-style parameter to
 	another out-style parameter.
 	"""
@@ -1630,13 +1630,13 @@ class _OrdinalConverter(_Converter):
 		}
 
 
-class _OrdinalToNamedConverter(_OrdinalConverter):
+class OrdinalToNamedConverter(OrdinalConverter):
 	"""
-	The :class:`._OrdinalToNamedConverter` class is used to convert
-	ordinal in-style parameters to named out-style parameters.
+	The :class:`.OrdinalToNamedConverter` class is used to convert ordinal
+	in-style parameters to named out-style parameters.
 	"""
 
-	_out_style: _styles._NamedStyle
+	_out_style: _styles.NamedStyle
 
 	def convert(
 		self,
@@ -1655,7 +1655,7 @@ class _OrdinalToNamedConverter(_OrdinalConverter):
 		Returns a :class:`tuple` containing: the converted SQL query
 		(:class:`str`), and the out-style parameters (:class:`dict`).
 		"""
-		if _is_sequence(params):
+		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
@@ -1694,7 +1694,7 @@ class _OrdinalToNamedConverter(_OrdinalConverter):
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
-		if _is_sequence(first_params):
+		if is_sequence(first_params):
 			pass
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
@@ -1741,7 +1741,7 @@ class _OrdinalToNamedConverter(_OrdinalConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i:
-				if _is_sequence(in_params):
+				if is_sequence(in_params):
 					pass
 				elif isinstance(in_params, Mapping):
 					in_params = cls._mapping_as_sequence(in_params)  # noqa
@@ -1870,17 +1870,17 @@ class _OrdinalToNamedConverter(_OrdinalConverter):
 				return out_repl
 
 
-class _OrdinalToNumericConverter(_OrdinalConverter):
+class OrdinalToNumericConverter(OrdinalConverter):
 	"""
-	The :class:`._OrdinalToNumericConverter` class is used to convert
+	The :class:`.OrdinalToNumericConverter` class is used to convert
 	ordinal in-style parameters to numeric out-style parameters.
 	"""
 
-	_out_style: _styles._NumericStyle
+	_out_style: _styles.NumericStyle
 
 	def __init__(self, **kw):
 		"""
-		Initializes the :class:`._OrdinalToNumericConverter` instance.
+		Initializes the :class:`.OrdinalToNumericConverter` instance.
 		"""
 		super().__init__(**kw)
 
@@ -1907,7 +1907,7 @@ class _OrdinalToNumericConverter(_OrdinalConverter):
 		Returns a :class:`tuple` containing: the converted SQL query
 		(:class:`str`), and the out-style parameters (:class:`list`).
 		"""
-		if _is_sequence(params):
+		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
@@ -1947,7 +1947,7 @@ class _OrdinalToNumericConverter(_OrdinalConverter):
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
-		if _is_sequence(first_params):
+		if is_sequence(first_params):
 			pass
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
@@ -1999,7 +1999,7 @@ class _OrdinalToNumericConverter(_OrdinalConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i:
-				if _is_sequence(in_params):
+				if is_sequence(in_params):
 					pass
 				elif isinstance(in_params, Mapping):
 					in_params = cls._mapping_as_sequence(in_params)  # noqa
@@ -2133,13 +2133,13 @@ class _OrdinalToNumericConverter(_OrdinalConverter):
 				return out_repl
 
 
-class _OrdinalToOrdinalConverter(_OrdinalConverter):
+class OrdinalToOrdinalConverter(OrdinalConverter):
 	"""
-	The :class:`._OrdinalToOrdinalConverter` class is used to convert
+	The :class:`.OrdinalToOrdinalConverter` class is used to convert
 	ordinal in-style parameters to ordinal out-style parameters.
 	"""
 
-	_out_style: _styles._OrdinalStyle
+	_out_style: _styles.OrdinalStyle
 
 	def convert(
 		self,
@@ -2158,7 +2158,7 @@ class _OrdinalToOrdinalConverter(_OrdinalConverter):
 		Returns a :class:`tuple` containing: the converted SQL query
 		(:class:`str`), and the out-style parameters (:class:`list`).
 		"""
-		if _is_sequence(params):
+		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
@@ -2198,7 +2198,7 @@ class _OrdinalToOrdinalConverter(_OrdinalConverter):
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
-		if _is_sequence(first_params):
+		if is_sequence(first_params):
 			pass
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
@@ -2246,7 +2246,7 @@ class _OrdinalToOrdinalConverter(_OrdinalConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i:
-				if _is_sequence(in_params):
+				if is_sequence(in_params):
 					pass
 				elif isinstance(in_params, Mapping):
 					in_params = cls._mapping_as_sequence(in_params)  # noqa

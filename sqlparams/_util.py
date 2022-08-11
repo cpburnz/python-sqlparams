@@ -5,7 +5,7 @@ This module defines internal utility methods.
 from collections.abc import Iterable, Sequence
 
 
-def _is_iterable(value):
+def is_iterable(value):
 	"""
 	Check whether the value is an iterable (excludes strings).
 
@@ -16,7 +16,7 @@ def _is_iterable(value):
 	return isinstance(value, Iterable) and not isinstance(value, (str, bytes))
 
 
-def _is_sequence(value):
+def is_sequence(value):
 	"""
 	Check whether the value is a sequence (excludes strings).
 
