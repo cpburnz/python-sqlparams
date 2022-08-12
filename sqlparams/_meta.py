@@ -13,4 +13,4 @@ __credits__ = [
 	"sergey-shambir <https://github.com/sergey-shambir>",
 ]
 __license__ = "MIT License"
-__version__ = "5.0.0.dev1"
+__version__ = "5.0.0"

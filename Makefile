@@ -58,7 +58,7 @@ dev-venv-create: dev-venv-base dev-venv-install
 
 dev-venv-install:
 	${VENV} pip install --upgrade pip setuptools wheel
-	${VENV} pip install --upgrade build tox twine
+	${VENV} pip install --upgrade build sphinx tox twine
 	${VENV} pip install -e "${SRC_DIR}"
 
 

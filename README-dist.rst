@@ -106,28 +106,32 @@ Change History
 ==============
 
 
-5.0.0 (TBD)
+5.0.0 (2022-08-11)
 ------------------
 
+- Dropped support of EOL Python 3.6.
+- Support Python 3.11.
 - Changed build system to `pyproject.toml`_ and build backend to `setuptools.build_meta`_ which may have unforeseen consequences.
-- `Issue #9`_: Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments. {{ WARNING: WIP. DO NOT RELEASE. }}
+- Safely expand empty tuples. Fixes `Issue #8`_.
+- Add support for stripping comments. This helps prevent expansion of unexpected variables in comments. Fixes `Issue #9`_.
+- Rename GitHub project from `python-sql-parameters`_ to `python-sqlparams`_.
 
 .. _`pyproject.toml`: https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml/
 .. _`setuptools.build_meta`: https://setuptools.pypa.io/en/latest/build_meta.html
-.. _`Issue #9`: https://github.com/cpburnz/python-sql-parameters/issues/9
-
+.. _`Issue #8`: https://github.com/cpburnz/python-sqlparams/issues/8
+.. _`Issue #9`: https://github.com/cpburnz/python-sqlparams/issues/9
+.. _`python-sql-parameters`: https://github.com/cpburnz/python-sql-parameters
+.. _`python-sqlparams`: https://github.com/cpburnz/python-sqlparams
 
 
 4.0.0 (2022-06-06)
 ------------------
 
 - Drop support for EOL Python 3.5.
--	`Issue #10`_: When converting to 'format'/'pyformat' types, escape existing
-	'%' characters.
--	When converting from 'format'/'pyformat' types, set `escape_char=True` to
-	unescape double '%' characters.
+-	`Issue #10`_: When converting to 'format'/'pyformat' types, escape existing '%' characters.
+-	When converting from 'format'/'pyformat' types, set `escape_char=True` to unescape double '%' characters.
 
-.. _`Issue #10`: https://github.com/cpburnz/python-sql-parameters/issues/10
+.. _`Issue #10`: https://github.com/cpburnz/python-sqlparams/issues/10
 
 
 
@@ -146,8 +150,8 @@ Change History
   datetimes). Fixes `Issue #4`_.
 - `Issue #7`_: Support dollar sign style for numeric and named parameters.
 
-.. _`Issue #4`: https://github.com/cpburnz/python-sql-parameters/issues/4
-.. _`Issue #7`: https://github.com/cpburnz/python-sql-parameters/issues/7
+.. _`Issue #4`: https://github.com/cpburnz/python-sqlparams/issues/4
+.. _`Issue #7`: https://github.com/cpburnz/python-sqlparams/issues/7
 
 
 2.0.0 (2020-02-26)
@@ -186,7 +190,7 @@ Change History
 
 - Fixed documentation for `issue 1`_.
 
-.. _`issue 1`: https://github.com/cpburnz/python-sql-parameters/issues/1
+.. _`issue 1`: https://github.com/cpburnz/python-sqlparams/issues/1
 
 
 1.0.2 (2012-12-22)
