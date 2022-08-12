@@ -6,6 +6,7 @@ Change History
 5.0.0 (TBD)
 ------------------
 
+- Dropped support of EOL Python 3.6.
 - Changed build system to `pyproject.toml`_ and build backend to `setuptools.build_meta`_ which may have unforeseen consequences.
 - `Issue #9`_: Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments. {{ WARNING: WIP. DO NOT RELEASE. }}
 
