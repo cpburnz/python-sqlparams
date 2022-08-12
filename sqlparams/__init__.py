@@ -88,6 +88,9 @@ class SQLParams(object):
 		tuples by default (:data:`True`). If *out_style* is a named style,
 		do not expand tuples by default (:data:`False`).
 
+		.. NOTE:: Empty tuples will be safely expanded to :data:`(NULL)` to
+		   prevent SQL syntax errors,
+
 		*strip_comments* (:class:`Sequence`, :class:`bool`, or :data:`None`)
 		whether to strip out comments and what style of comments to remove.
 		If a :class:`Sequence`, this defines the comment styles. A single

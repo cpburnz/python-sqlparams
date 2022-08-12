@@ -8,10 +8,12 @@ Change History
 
 - Dropped support of EOL Python 3.6.
 - Changed build system to `pyproject.toml`_ and build backend to `setuptools.build_meta`_ which may have unforeseen consequences.
-- `Issue #9`_: Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments.
+- Safely expand empty tuples. Fixes `Issue #8`_.
+- Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments. Fixes `Issue #9`_.
 
 .. _`pyproject.toml`: https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml/
 .. _`setuptools.build_meta`: https://setuptools.pypa.io/en/latest/build_meta.html
+.. _`Issue #8`: https://github.com/cpburnz/python-sql-parameters/issues/8
 .. _`Issue #9`: https://github.com/cpburnz/python-sql-parameters/issues/9
 
 

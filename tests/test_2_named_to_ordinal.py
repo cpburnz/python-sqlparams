@@ -335,6 +335,36 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
+	def test_2_expand_tuples_empty(self):
+		"""
+		Test expanding empty tuples.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', expand_tuples=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE race = :race AND name IN :names;
+		"""
+		src_params = {'names': (), 'race': "Dwarf"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE race = ? AND name IN (NULL);
+		"""
+		dest_params = [src_params['race']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
 	def test_2_expand_tuples_many(self):
 		"""
 		Test expanding many tuples.

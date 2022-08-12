@@ -322,6 +322,10 @@ class NamedToNamedConverter(NamedConverter):
 
 			value = in_params[in_name]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert named parameter by flattening tuple values.
 				out_names = []
 				out_replacements = []
@@ -566,6 +570,10 @@ class NamedToNumericConverter(NamedConverter):
 
 			value = in_params[in_name]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert named parameter by flattening tuple values.
 				is_new = True
 				out_indices = []
@@ -811,6 +819,10 @@ class NamedToOrdinalConverter(NamedConverter):
 
 			value = in_params[in_name]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert named parameter by flattening tuple values.
 				param_conversions.append((True, in_name, len(value)))
 				return "({})".format(",".join(out_format for _ in value))
@@ -1076,6 +1088,10 @@ class NumericToNamedConverter(NumericConverter):
 
 			value = in_params[in_index]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert numeric parameter by flattening tuple values.
 				out_names = []
 				out_replacements = []
@@ -1335,6 +1351,10 @@ class NumericToNumericConverter(NumericConverter):
 
 			value = in_params[in_index]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert numeric parameter by flattening tuple values.
 				is_new = True
 				out_indices = []
@@ -1594,6 +1614,10 @@ class NumericToOrdinalConverter(NumericConverter):
 
 			value = in_params[in_index]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert numeric parameter by flattening tuple values.
 				param_conversions.append((True, in_index, len(value)))
 				return "({})".format(",".join(out_format for _ in value))
@@ -1850,6 +1874,10 @@ class OrdinalToNamedConverter(OrdinalConverter):
 
 			value = in_params[in_index]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert ordinal parameter by flattening tuple values.
 				out_names = []
 				out_replacements = []
@@ -2111,6 +2139,10 @@ class OrdinalToNumericConverter(OrdinalConverter):
 
 			value = in_params[in_index]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert ordinal parameter by flattening tuple values.
 				out_indices = []
 				out_replacements = []
@@ -2357,6 +2389,10 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 
 			value = in_params[in_index]
 			if self._expand_tuples and isinstance(value, tuple):
+				if not value:
+					# Safely expand an empty tuple.
+					return "(NULL)"
+
 				# Convert ordinal parameter by flattening tuple values.
 				param_conversions.append((True, in_index, len(value)))
 				return "({})".format(",".join(out_format for _ in value))
