@@ -18,7 +18,7 @@ import sys
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../../'))
-from sqlparams_meta import __author__, __copyright__, __version__
+from sqlparams._meta import __author__, __copyright__, __version__
 
 
 # -- General configuration -----------------------------------------------------

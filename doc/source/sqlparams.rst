@@ -1,5 +1,5 @@
 
-.. include:: ../../README.in
+.. include:: ../../README.rst.in
 
 API
 ---
@@ -10,3 +10,7 @@ API
       :members:
 
       .. automethod:: __init__
+
+
+
+.. include:: ../../CHANGES.rst
