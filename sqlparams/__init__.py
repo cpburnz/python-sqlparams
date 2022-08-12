@@ -429,14 +429,14 @@ class SQLParams(object):
 		for i, comment_style in enumerate(strip_comments):
 			if isinstance(comment_style, str):
 				# Compile regular expression to strip single line comment.
-				out_regexes.append(re.compile("^\\s*{comment}.*$".format(
+				out_regexes.append(re.compile("^[ \t]*{comment}.*(?:\n|\r\n)?".format(
 					comment=re.escape(comment_style),
 				), re.M))
 
 			elif _util.is_sequence(comment_style):
 				# Compile regular expression to strip multiline comment.
 				start_comment, end_comment = comment_style  # type: str
-				out_regexes.append(re.compile("^\\s*{start}.*?{end}".format(
+				out_regexes.append(re.compile("^[ \t]*{start}.*?{end}(?:\n|\r\n)?".format(
 					start=re.escape(start_comment),
 					end=re.escape(end_comment),
 				), re.DOTALL | re.M))
