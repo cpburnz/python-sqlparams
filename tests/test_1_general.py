@@ -340,6 +340,33 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
+	def test_5_strip_comments_multi_trailing(self) -> None:
+		"""
+		Test to make sure multiline comments do not consume trailing
+		comments.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'qmark', strip_comments=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT * FROM users /* Trailing comment. */
+		"""
+		src_params = {}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT * FROM users /* Trailing comment. */
+		"""
+		dest_params = []
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
 	def test_5_strip_comments_single(self) -> None:
 		"""
 		Test a query stripping single line comments.
@@ -358,8 +385,6 @@ class Test(unittest.TestCase):
 
 		# Desired SQL and params.
 		dest_sql = """
-
-
 			SELECT * FROM users WHERE updated_at BETWEEN ? AND ?
 		"""
 		dest_params = [src_params['start_date'], src_params['end_date']]
@@ -409,7 +434,6 @@ class Test(unittest.TestCase):
 
 		# Source SQL and params.
 		src_sql = """
-			-- Stripped comment.
 			SELECT * FROM users -- Trailing comment.
 		"""
 		src_params = {}

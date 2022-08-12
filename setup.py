@@ -1,6 +1,5 @@
 """
-This setup script only exists to allow an editable install with pip and
-to run tests from tox.
+This setup script only exists to allow an editable install with pip.
 """
 
 from setuptools import setup
