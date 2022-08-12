@@ -8,7 +8,7 @@ Change History
 
 - Dropped support of EOL Python 3.6.
 - Changed build system to `pyproject.toml`_ and build backend to `setuptools.build_meta`_ which may have unforeseen consequences.
-- `Issue #9`_: Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments. {{ WARNING: WIP. DO NOT RELEASE. }}
+- `Issue #9`_: Add rudimentary support for stripping comments. This helps prevent expansion of unexpected variables in comments.
 
 .. _`pyproject.toml`: https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml/
 .. _`setuptools.build_meta`: https://setuptools.pypa.io/en/latest/build_meta.html
