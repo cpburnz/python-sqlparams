@@ -2,7 +2,7 @@
 # This Makefile is used to manage development and distribution.
 #
 # Created: 2022-08-01
-# Updated: 2022-08-02
+# Updated: 2022-08-31
 #
 
 .PHONY: build create-venv help prebuild publish test update-venv
@@ -68,13 +68,13 @@ dev-venv-install:
 
 .PHONY: dist-build dist-prebuild dist-publish
 
-dist-build: prebuild
+dist-build: dist-prebuild
 	find ./dist -type f -delete
 	${VENV} python -m build
 
 dist-prebuild:
 	${VENV} python ./prebuild.py
 
-dist-publish: build
+dist-publish: dist-build
 	${VENV} twine check ./dist/*
-	${VENV} twine upload --skip-existing ./dist/*
+	${VENV} twine upload -r sqlparams --skip-existing ./dist/*
