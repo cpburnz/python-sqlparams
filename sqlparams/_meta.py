@@ -3,7 +3,7 @@ This module contains project meta-data.
 """
 
 __author__ = "Caleb P. Burns"
-__copyright__ = "Copyright © 2012-2022 by Caleb P. Burns"
+__copyright__ = "Copyright © 2012-2023 by Caleb P. Burns"
 __credits__ = [
 	"khomyakov42 <https://github.com/khomyakov42>",
 	"pedermoller <https://github.com/pedermoller>",
@@ -14,4 +14,4 @@ __credits__ = [
 	"sergey-shambir <https://github.com/sergey-shambir>",
 ]
 __license__ = "MIT License"
-__version__ = "5.0.0"
+__version__ = "5.1.0.dev1"

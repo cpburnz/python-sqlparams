@@ -2,7 +2,26 @@
 This module defines internal utility methods.
 """
 
-from collections.abc import Iterable, Sequence
+from collections.abc import (
+	Iterable,
+	Sequence)
+from typing import (
+	TypeVar)
+
+# LiteralString: Python 3.11+
+try:
+	from typing import LiteralString
+except ImportError:
+	try:
+		from typing_extensions import LiteralString
+	except ImportError:
+		LiteralString = str
+
+SqlStr = TypeVar('SqlStr', LiteralString, str, bytes)
+"""
+Constrained type variable for SQL strings (:class:`LiteralString`,
+:class:`str`, :class:`bytes`).
+"""
 
 
 def is_iterable(value):

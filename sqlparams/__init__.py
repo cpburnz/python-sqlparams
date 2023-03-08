@@ -6,7 +6,6 @@ parameter styles.
 import re
 from typing import (
 	Any,
-	AnyStr,
 	Dict,
 	Iterable,
 	List,
@@ -26,8 +25,9 @@ from ._meta import (
 	__copyright__,
 	__credits__,
 	__license__,
-	__version__,
-)
+	__version__)
+from ._util import (
+	SqlStr)
 
 _BYTES_ENCODING = 'latin1'
 """
@@ -471,14 +471,15 @@ class SQLParams(object):
 
 	def format(
 		self,
-		sql: AnyStr,
+		sql: SqlStr,
 		params: Union[Dict[Union[str, int], Any], Sequence[Any]],
-	) -> Tuple[AnyStr, Union[Dict[Union[str, int], Any], Sequence[Any]]]:
+	) -> Tuple[SqlStr, Union[Dict[str, Any], Sequence[Any]]]:
 		"""
 		Convert the SQL query to use the out-style parameters instead of
 		the in-style parameters.
 
-		*sql* (:class:`str` or :class:`bytes`) is the SQL query.
+		*sql* (:class:`LiteralString`, :class:`str`, or :class:`bytes`) is
+		the SQL query.
 
 		*params* (:class:`~collections.abc.Mapping` or :class:`~collections.abc.Sequence`)
 		contains the set of in-style parameters. It maps each parameter
@@ -489,7 +490,8 @@ class SQLParams(object):
 
 		Returns a :class:`tuple` containing:
 
-		-	The formatted SQL query (:class:`str` or :class:`bytes`).
+		-	The formatted SQL query (:class:`LiteralString`, :class:`str` or
+			:class:`bytes`).
 
 		-	The set of converted out-style parameters (:class:`dict` or
 			:class:`list`).
@@ -521,14 +523,15 @@ class SQLParams(object):
 
 	def formatmany(
 		self,
-		sql: AnyStr,
+		sql: SqlStr,
 		many_params: Union[Iterable[Dict[Union[str, int], Any]], Iterable[Sequence[Any]]],
-	) -> Tuple[AnyStr, Union[List[Dict[Union[str, int], Any]], List[Sequence[Any]]]]:
+	) -> Tuple[SqlStr, Union[List[Dict[str, Any]], List[Sequence[Any]]]]:
 		"""
 		Convert the SQL query to use the out-style parameters instead of the
 		in-style parameters.
 
-		*sql* (:class:`str` or :class:`bytes`) is the SQL query.
+		*sql* (:class:`LiteralString`, :class:`str` or :class:`bytes`) is
+		the SQL query.
 
 		*many_params* (:class:`~collections.abc.Iterable`) contains each set
 		of in-style parameters (*params*).
@@ -542,7 +545,8 @@ class SQLParams(object):
 
 		Returns a :class:`tuple` containing:
 
-		-	The formatted SQL query (:class:`str` or :class:`bytes`).
+		-	The formatted SQL query (:class:`LiteralString`, :class:`str` or
+			:class:`bytes`).
 
 		-	A :class:`list` containing each set of converted out-style
 			parameters (:class:`dict` or :class:`list`).

@@ -79,7 +79,7 @@ class Converter(object):
 		self,
 		sql: str,
 		params: Union[Dict[Union[str, int], Any], Sequence[Any]],
-	) -> Tuple[str, Union[Dict[Union[str, int], Any], Sequence[Any]]]:
+	) -> Tuple[str, Union[Dict[str, Any], Sequence[Any]]]:
 		"""
 		Convert the SQL query to use the named out-style parameters from the
 		named the in-style parameters.
