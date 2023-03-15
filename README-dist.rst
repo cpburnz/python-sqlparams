@@ -106,6 +106,16 @@ Change History
 ==============
 
 
+5.1.0 (2023-03-14)
+------------------
+
+Improvements:
+
+- Support `LiteralString`_.
+
+.. _`LiteralString`: https://docs.python.org/3/library/typing.html#typing.LiteralString
+
+
 5.0.0 (2022-08-11)
 ------------------
 
