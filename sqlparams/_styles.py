@@ -2,7 +2,8 @@
 This module contains internal classes for defining parameter styles.
 """
 
-from typing import Dict
+from typing import (
+	Dict)  # Replaced by `dict` in 3.9.
 
 STYLES: Dict[str, 'Style'] = {}
 """
@@ -12,8 +13,7 @@ Maps parameter style by name.
 
 class Style(object):
 	"""
-	The :class:`.Style` class is the base class used to define a parameter
-	style.
+	The :class:`.Style` class is the base class used to define a parameter style.
 	"""
 
 	def __init__(
@@ -36,8 +36,8 @@ class Style(object):
 
 		self.escape_regex: str = escape_regex
 		"""
-		*escape_regex* (:class:`str`) is the regular expression used to
-		match the escape sequence.
+		*escape_regex* (:class:`str`) is the regular expression used to match the
+		escape sequence.
 		"""
 
 		self.name: str = name
@@ -47,29 +47,26 @@ class Style(object):
 
 		self.out_format: str = out_format
 		"""
-		*out_format* (:class:`str`) is the out-style parameter format
-		string.
+		*out_format* (:class:`str`) is the out-style parameter format string.
 		"""
 
 		self.param_regex: str = param_regex
 		"""
-		*param_regex* (:class:`str`) is the regular expression used to
-		extract the parameter.
+		*param_regex* (:class:`str`) is the regular expression used to extract the
+		parameter.
 		"""
 
 
 class NamedStyle(Style):
 	"""
-	The :class:`.NamedStyle` class is used to define a named parameter
-	style.
+	The :class:`.NamedStyle` class is used to define a named parameter style.
 	"""
 	pass
 
 
 class NumericStyle(Style):
 	"""
-	The :class:`.NumericStyle` class is used to define a numeric parameter
-	style.
+	The :class:`.NumericStyle` class is used to define a numeric parameter style.
 	"""
 
 	def __init__(self, start: int, **kw) -> None:
@@ -80,15 +77,14 @@ class NumericStyle(Style):
 
 		self.start: int = start
 		"""
-		*start* (:class:`int`) indicates to start enumerating arguments at
-		the specified number (e.g., :data:`1` or :data:`0`).
+		*start* (:class:`int`) indicates to start enumerating arguments at the
+		specified number (e.g., ``1`` or ``0``).
 		"""
 
 
 class OrdinalStyle(Style):
 	"""
-	The :class:`.OrdinalStyle` class is used to define an ordinal
-	parameter style.
+	The :class:`.OrdinalStyle` class is used to define an ordinal parameter style.
 	"""
 	pass
 

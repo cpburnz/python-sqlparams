@@ -2,7 +2,10 @@
 .. include:: ../../README.rst.in
 
 API
----
+===
+
+sqlparams
+---------
 
 .. automodule:: sqlparams
 
@@ -14,3 +17,11 @@ API
 
 
 .. include:: ../../CHANGES.rst
+
+
+sqlparams.typing
+----------------
+
+.. automodule:: sqlparams.typing
+  :members:
+  :show-inheritance:
