@@ -3,8 +3,8 @@ Change History
 ==============
 
 
-6.0.0 (TBD)
------------
+6.0.0 (2023-12-09)
+------------------
 
 - Dropped support of EOL Python 3.7.
 - Support Python 3.12.
