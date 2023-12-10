@@ -10,6 +10,7 @@ Welcome to SQL Params's documentation!
 Contents:
 
 .. toctree::
+   :maxdepth: 2
 
    sqlparams
 

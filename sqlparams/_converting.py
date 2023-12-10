@@ -1,26 +1,28 @@
 """
-This module contains internal classes used for converting parameter
-styles.
+This module contains internal classes used for converting parameter styles.
 """
 
 import itertools
-from collections.abc import Mapping
-from functools import partial
+from collections.abc import (
+	Mapping)
+from functools import (
+	partial)
 from typing import (
 	Any,
-	Dict,
-	Iterable,
-	Iterator,
-	List,
-	Match,
-	Optional,
-	Pattern,
-	Sequence,
-	Tuple,
-	Union)
+	Dict,  # Replaced by `dict` in 3.9.
+	Iterable,  # Replaced by `collections.abc.Iterable` in 3.9.
+	Iterator,  # Replaced by `collections.abc.Iterator` in 3.9.
+	List,  # Replaced by `list` in 3.9.
+	Match,  # Replaced by `re.Match` in 3.9.
+	Optional,  # Replaced by `X | None` in 3.10.
+	Pattern,  # Replaced by `re.Pattern` in 3.9.
+	Sequence,  # Replaced by `collections.abc.Sequence` in 3.9.
+	Tuple,  # Replaced by `tuple` in 3.9.
+	Union)  # Replaced by `X | Y` in 3.10.
 
 from . import _styles
-from ._util import is_sequence
+from ._util import (
+	is_sequence)
 
 
 class Converter(object):
@@ -55,8 +57,8 @@ class Converter(object):
 
 		self._in_regex: Pattern[str] = in_regex
 		"""
-		*_in_regex* (:class:`re.Pattern`) is the regular expression used to
-		extract the in-style parameters.
+		*_in_regex* (:class:`re.Pattern`) is the regular expression used to extract
+		the in-style parameters.
 		"""
 
 		self._in_style: _styles.Style = in_style
@@ -81,19 +83,18 @@ class Converter(object):
 		params: Union[Dict[Union[str, int], Any], Sequence[Any]],
 	) -> Tuple[str, Union[Dict[str, Any], Sequence[Any]]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		named the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the named
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Mapping` or :class:`~collections.abc.Sequence`)
 		contains the set of in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`dict` or
-		:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`dict` or :class:`list`).
 		"""
-		raise NotImplementedError("{} must implement convert().".format(self.__class__.__qualname__))
+		raise NotImplementedError(f"{self.__class__.__qualname__} must implement convert().")
 
 	def convert_many(
 		self,
@@ -101,27 +102,25 @@ class Converter(object):
 		many_params: Union[Iterable[Dict[Union[str, int], Any]], Iterable[Sequence[Any]]],
 	) -> Tuple[str, Union[List[Dict[Union[str, int], Any]], List[Sequence[Any]]]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		named the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the named
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Mapping` or
-		:class:`~collections.abc.Sequence`).
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Mapping` or :class:`~collections.abc.Sequence`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`dict` or :class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`dict` or
+		:class:`list`).
 		"""
-		raise NotImplementedError("{} must implement convert_many().".format(self.__class__.__qualname__))
+		raise NotImplementedError(f"{self.__class__.__qualname__} must implement convert_many().")
 
 
 class NamedConverter(Converter):
 	"""
-	The :class:`NamedConverter` class is the base class for implementing
-	the conversion from one named in-style parameter to another out-style
-	parameter.
+	The :class:`NamedConverter` class is the base class for implementing the
+	conversion from one named in-style parameter to another out-style parameter.
 	"""
 
 	_in_style: _styles.NamedStyle
@@ -129,8 +128,8 @@ class NamedConverter(Converter):
 
 class NamedToNamedConverter(NamedConverter):
 	"""
-	The :class:`.NamedToNamedConverter` class is used to convert named
-	in-style parameters to named out-style parameters.
+	The :class:`.NamedToNamedConverter` class is used to convert named in-style
+	parameters to named out-style parameters.
 	"""
 
 	def convert(
@@ -139,19 +138,19 @@ class NamedToNamedConverter(NamedConverter):
 		params: Dict[str, Any],
 	) -> Tuple[str, Dict[str, Any]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		named the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the named
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Mapping`) contains the in-style
 		parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`dict`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`dict`).
 		"""
 		if not isinstance(params, Mapping):
-			raise TypeError("params:{!r} is not a mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -168,23 +167,22 @@ class NamedToNamedConverter(NamedConverter):
 		many_params: Iterable[Dict[str, Any]],
 	) -> Tuple[str, List[Dict[str, Any]]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		named the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the named
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Mapping`).
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`dict`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`dict`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
 		if not isinstance(first_params, Mapping):
-			raise TypeError("many_params[0]:{!r} is not a mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -203,19 +201,17 @@ class NamedToNamedConverter(NamedConverter):
 		"""
 		Convert the named in-style parameters to named out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-name (:class:`str`), and the out-name
-			(:class:`str`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-name (:class:`str`), and the out-name (:class:`str`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-name (:class:`str`), and the out-names
-			(:class:`list` of :class:`str`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-name (:class:`str`), and the out-names (:class:`list` of :class:`str`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`dict`).
 		"""
@@ -223,7 +219,7 @@ class NamedToNamedConverter(NamedConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i and not isinstance(in_params, Mapping):
-				raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+				raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: Dict[str, Any] = {}
 			for expand_tuple, in_name, out_name in param_conversions:
@@ -232,9 +228,9 @@ class NamedToNamedConverter(NamedConverter):
 					out_names = out_name
 					values = in_params[in_name]
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_name, values))
+						raise TypeError(f"many_params[{i}][{in_name!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != len(out_names):
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_name, values, len(out_names)))
+						raise ValueError(f"many_params[{i}][{in_name!r}]={values!r} length was expected to be {len(out_names)}.")
 
 					for sub_name, sub_value in zip(out_names, values):
 						out_params[sub_name] = sub_value
@@ -262,11 +258,11 @@ class NamedToNamedConverter(NamedConverter):
 		conversion to perform (:class:`tuple`).
 
 		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-name (:class:`str`), and the out-name
+			(``False``), the in-name (:class:`str`), and the out-name
 			(:class:`str`).
 
 		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-name (:class:`str`), and the out-names
+			(``True``), the in-name (:class:`str`), and the out-names
 			(:class:`list` of :class:`str`).
 
 		Returns the out-style parameters (:class:`dict`).
@@ -383,7 +379,7 @@ class NamedToNumericConverter(NamedConverter):
 		(:class:`str`), and the out-style parameters (:class:`list`).
 		"""
 		if not isinstance(params, Mapping):
-			raise TypeError("params:{!r} is not a mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -418,7 +414,7 @@ class NamedToNumericConverter(NamedConverter):
 		first_params = next(iter_params)
 
 		if not isinstance(first_params, Mapping):
-			raise TypeError("many_params[0]:{!r} is not a mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -447,11 +443,11 @@ class NamedToNumericConverter(NamedConverter):
 		conversion to perform (:class:`tuple`).
 
 		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-name (:class:`str`), and the out-index
+			(``False``), the in-name (:class:`str`), and the out-index
 			(:class:`int`).
 
 		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-name (:class:`str`), and the out-indices
+			(``True``), the in-name (:class:`str`), and the out-indices
 			(:class:`list` of :class:`int`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`list`).
@@ -464,7 +460,7 @@ class NamedToNumericConverter(NamedConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i and not isinstance(in_params, Mapping):
-				raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+				raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: List[Any] = [None] * size
 			for expand_tuple, in_name, out_index in param_conversions:
@@ -473,9 +469,9 @@ class NamedToNumericConverter(NamedConverter):
 					values = in_params[in_name]
 					out_indices = out_index
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_name, values))
+						raise TypeError(f"many_params[{i}][{in_name!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != len(out_indices):
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_name, values, len(out_indices)))
+						raise ValueError(f"many_params[{i}][{in_name!r}]={values!r} length was expected to be {len(out_indices)}.")
 
 					for sub_index, sub_value in zip(out_indices, values):
 						out_params[sub_index] = sub_value
@@ -494,22 +490,19 @@ class NamedToNumericConverter(NamedConverter):
 		param_conversions: List[Tuple[bool, str, Union[int, List[int]]]],
 	) -> List[Any]:
 		"""
-		Convert the named in-style parameters to numeric out-style
+		Convert the named in-style parameters to numeric out-style parameters.
+
+		*in_params* (:class:`~collections.abc.Mapping`) contains the in-style
 		parameters.
 
-		*in_params* (:class:`~collections.abc.Mapping`) contains the
-		in-style parameters.
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-name (:class:`str`), and the out-index (:class:`int`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-name (:class:`str`), and the out-index
-			(:class:`int`).
-
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-name (:class:`str`), and the out-indices
-			(:class:`list` of :class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-name (:class:`str`), and the out-indices (:class:`list` of :class:`int`).
 
 		Returns the out-style parameters (:class:`list`).
 		"""
@@ -542,14 +535,14 @@ class NamedToNumericConverter(NamedConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Mapping`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Mapping`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*out_counter* (:class:`~collections.abc.Iterator`) is used to
-		generate new out-indices.
+		*out_counter* (:class:`~collections.abc.Iterator`) is used to generate new
+		out-indices.
 
 		*out_lookup* (:class:`dict`) caches out-parameter information.
 
@@ -618,8 +611,8 @@ class NamedToNumericConverter(NamedConverter):
 
 class NamedToOrdinalConverter(NamedConverter):
 	"""
-	The :class:`.NamedToOrdinalConverter` class is used to convert named
-	in-style parameters to ordinal out-style parameters.
+	The :class:`.NamedToOrdinalConverter` class is used to convert named in-style
+	parameters to ordinal out-style parameters.
 	"""
 
 	_out_style: _styles.OrdinalStyle
@@ -630,19 +623,19 @@ class NamedToOrdinalConverter(NamedConverter):
 		params: Dict[str, Any],
 	) -> Tuple[str, List[Any]]:
 		"""
-		Convert the SQL query to use the ordinal out-style parameters from
-		the named the in-style parameters.
+		Convert the SQL query to use the ordinal out-style parameters from the named
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Mapping`) contains the in-style
 		parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`list`).
 		"""
 		if not isinstance(params, Mapping):
-			raise TypeError("params:{!r} is not a mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -660,23 +653,22 @@ class NamedToOrdinalConverter(NamedConverter):
 		many_params: Iterable[Dict[str, Any]],
 	) -> Tuple[str, List[List[Any]]]:
 		"""
-		Convert the SQL query to use the ordinal out-style parameters from
-		the named the in-style parameters.
+		Convert the SQL query to use the ordinal out-style parameters from the named
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Mapping`).
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`list`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
 
 		if not isinstance(first_params, Mapping):
-			raise TypeError("many_params[0]:{!r} is not a mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -694,22 +686,19 @@ class NamedToOrdinalConverter(NamedConverter):
 		param_conversions: List[Tuple[bool, str, Optional[int]]],
 	) -> List[List[Any]]:
 		"""
-		Convert the named in-style parameters to ordinal out-style
-		parameters.
+		Convert the named in-style parameters to ordinal out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-name (:class:`str`), and the out-count
-			(:data:`None`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-name (:class:`str`), and the out-count (``None``).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-name (:class:`str`), and the out-count
-			(:class:`int` or :data:`None`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-name (:class:`str`), and the out-count (:class:`int` or ``None``).
 
 		Returns the many out-style parameters (:class:`list` of :class:`list`).
 		"""
@@ -717,7 +706,7 @@ class NamedToOrdinalConverter(NamedConverter):
 		for i, in_params in enumerate(many_in_params):
 			# NOTE: First set has already been checked.
 			if i and not isinstance(in_params, Mapping):
-				raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+				raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: List[Any] = []
 			for expand_tuple, in_name, out_count in param_conversions:
@@ -725,9 +714,9 @@ class NamedToOrdinalConverter(NamedConverter):
 					# Tuple conversion.
 					values = in_params[in_name]
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_name, values))
+						raise TypeError(f"many_params[{i}][{in_name!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != out_count:
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_name, values, out_count))
+						raise ValueError(f"many_params[{i}][{in_name!r}]={values!r} length was expected to be {out_count}.")
 
 					for sub_value in values:
 						out_params.append(sub_value)
@@ -746,22 +735,19 @@ class NamedToOrdinalConverter(NamedConverter):
 		param_conversions: List[Tuple[bool, str, Optional[int]]],
 	) -> List[Any]:
 		"""
-		Convert the named in-style parameters to ordinal out-style
+		Convert the named in-style parameters to ordinal out-style parameters.
+
+		*in_params* (:class:`~collections.abc.Mapping`) contains the in-style
 		parameters.
 
-		*in_params* (:class:`~collections.abc.Mapping`) contains the
-		in-style parameters.
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-name (:class:`str`), and the out-count (``None``).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-name (:class:`str`), and the out-count
-			(:data:`None`).
-
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-name (:class:`str`), and the out-count
-			(:class:`int` or :data:`None`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-name (:class:`str`), and the out-count (:class:`int` or ``None``).
 
 		Returns the out-style parameters (:class:`list`).
 		"""
@@ -788,14 +774,13 @@ class NamedToOrdinalConverter(NamedConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Mapping`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Mapping`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*out_format* (:class:`str`) is the out-style parameter format
-		string.
+		*out_format* (:class:`str`) is the out-style parameter format string.
 
 		*match* (:class:`re.Match`) is the in-parameter match.
 
@@ -835,9 +820,8 @@ class NamedToOrdinalConverter(NamedConverter):
 
 class NumericConverter(Converter):
 	"""
-	The :class:`.NumericConverter` class is the base class for
-	implementing the conversion from one numeric in-style parameter to
-	another out-style parameter.
+	The :class:`.NumericConverter` class is the base class for implementing the
+	conversion from one numeric in-style parameter to another out-style parameter.
 	"""
 
 	_in_style: _styles.NumericStyle
@@ -850,8 +834,8 @@ class NumericConverter(Converter):
 
 		self._in_start: int = self._in_style.start
 		"""
-		*_in_start* (:class:`int`) indicates to start enumerating
-		in-parameters at the specified number.
+		*_in_start* (:class:`int`) indicates to start enumerating in-parameters at
+		the specified number.
 		"""
 
 	def _mapping_as_sequence(
@@ -861,8 +845,7 @@ class NumericConverter(Converter):
 		"""
 		Convert the in-parameters to mimic a sequence.
 
-		*in_params* (:class:`~collections.abc.Mapping`) is the
-		in-parameters.
+		*in_params* (:class:`~collections.abc.Mapping`) is the in-parameters.
 
 		Returns the converted in-parameters (:class:`~collections.abc.Mapping`).
 		"""
@@ -888,23 +871,23 @@ class NumericToNamedConverter(NumericConverter):
 		params: Union[Sequence[Any], Dict[Union[int, str], Any]],
 	) -> Tuple[str, Dict[str, Any]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		numeric the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the numeric
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Sequence` or :class:`~collections.abc.Mapping`)
 		contains the in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`dict`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`dict`).
 		"""
 		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
 		else:
-			raise TypeError("params:{!r} is not a sequence or mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -921,18 +904,17 @@ class NumericToNamedConverter(NumericConverter):
 		many_params: Union[Iterable[Sequence[Any]], Iterable[Dict[Union[int, str], Any]]],
 	) -> Tuple[str, List[Dict[str, Any]]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		numeric the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the numeric
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Sequence` or
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Sequence` or
 		:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`dict`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`dict`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
@@ -942,7 +924,7 @@ class NumericToNamedConverter(NumericConverter):
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
 		else:
-			raise TypeError("many_params[0]:{!r} is not a sequence or mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -959,22 +941,19 @@ class NumericToNamedConverter(NumericConverter):
 		param_conversions: List[Tuple[bool, int, Union[str, List[str]]]],
 	) -> List[Dict[str, Any]]:
 		"""
-		Convert the numeric in-style parameters to named out-style
-		parameters.
+		Convert the numeric in-style parameters to named out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-name
-			(:class:`str`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-name (:class:`str`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`str`), and the out-names
-			(:class:`list` of :class:`str`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`str`), and the out-names (:class:`list` of :class:`str`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`dict`).
 		"""
@@ -987,7 +966,7 @@ class NumericToNamedConverter(NumericConverter):
 				elif isinstance(in_params, Mapping):
 					in_params = self._mapping_as_sequence(in_params)  # noqa
 				else:
-					raise TypeError("many_params[{}]:{!r} is not a sequence or mapping.".format(i, in_params))
+					raise TypeError(f"many_params[{i}]={in_params!r} is not a sequence or mapping.")
 
 			out_params: Dict[str, Any] = {}
 			for expand_tuple, in_index, out_name in param_conversions:
@@ -996,9 +975,9 @@ class NumericToNamedConverter(NumericConverter):
 					out_names = out_name
 					values = in_params[in_index]
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_index, values))
+						raise TypeError(f"many_params[{i}][{in_index!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != len(out_names):
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_index, values, len(out_names)))
+						raise ValueError(f"many_params[{i}][{in_index!r}]={values!r} length was expected to be {len(out_names)}.")
 
 					for sub_name, sub_value in zip(out_names, values):
 						out_params[sub_name] = sub_value
@@ -1017,22 +996,19 @@ class NumericToNamedConverter(NumericConverter):
 		param_conversions: List[Tuple[bool, int, Union[str, List[str]]]],
 	) -> Dict[str, Any]:
 		"""
-		Convert the numeric in-style parameters to named out-style
+		Convert the numeric in-style parameters to named out-style parameters.
+
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
 		parameters.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters.
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-name (:class:`str`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-name
-			(:class:`str`).
-
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`str`), and the out-names
-			(:class:`list` of :class:`str`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`str`), and the out-names (:class:`list` of :class:`str`).
 
 		Returns the out-style parameters (:class:`dict`).
 		"""
@@ -1059,11 +1035,11 @@ class NumericToNamedConverter(NumericConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
 		*match* (:class:`re.Match`) is the in-parameter match.
 
@@ -1096,7 +1072,7 @@ class NumericToNamedConverter(NumericConverter):
 				out_names = []
 				out_replacements = []
 				for i, sub_value in enumerate(value):
-					out_name = "_{}_{}".format(in_num_str, i)
+					out_name = f"_{in_num_str}_{i}"
 					out_repl = self._out_format.format(param=out_name)
 					out_names.append(out_name)
 					out_replacements.append(out_repl)
@@ -1114,8 +1090,8 @@ class NumericToNamedConverter(NumericConverter):
 
 class NumericToNumericConverter(NumericConverter):
 	"""
-	The :class:`.NumericToNumericConverter` class is used to convert
-	numeric in-style parameters to numeric out-style parameters.
+	The :class:`.NumericToNumericConverter` class is used to convert numeric
+	in-style parameters to numeric out-style parameters.
 	"""
 
 	_out_style: _styles.NumericStyle
@@ -1128,8 +1104,8 @@ class NumericToNumericConverter(NumericConverter):
 
 		self.__out_start: int = self._out_style.start
 		"""
-		*__out_start* (:class:`int`) indicates to start enumerating
-		out-parameters at the specified number.
+		*__out_start* (:class:`int`) indicates to start enumerating out-parameters
+		at the specified number.
 		"""
 
 	def convert(
@@ -1138,23 +1114,23 @@ class NumericToNumericConverter(NumericConverter):
 		params: Union[Sequence[Any], Dict[Union[int, str], Any]],
 	) -> Tuple[str, List[Any]]:
 		"""
-		Convert the SQL query to use the numeric out-style parameters from
-		the numeric the in-style parameters.
+		Convert the SQL query to use the numeric out-style parameters from the
+		numeric the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Sequence` or :class:`~collections.abc.Mapping`)
 		contains the in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`list`).
 		"""
 		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
 		else:
-			raise TypeError("params:{!r} is not a sequence or mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1173,18 +1149,17 @@ class NumericToNumericConverter(NumericConverter):
 		many_params: Union[Iterable[Sequence[Any]], Iterable[Dict[Union[int, str], Any]]],
 	) -> Tuple[str, List[List[Any]]]:
 		"""
-		Convert the SQL query to use the numeric out-style parameters from
-		the numeric the in-style parameters.
+		Convert the SQL query to use the numeric out-style parameters from the
+		numeric the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Sequence` or
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Sequence` or
 		:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`list`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
@@ -1194,7 +1169,7 @@ class NumericToNumericConverter(NumericConverter):
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
 		else:
-			raise TypeError("many_params[0]:{!r} is not a sequence or mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1213,22 +1188,19 @@ class NumericToNumericConverter(NumericConverter):
 		param_conversions: List[Tuple[bool, int, Union[int, List[int]]]],
 	) -> List[List[Any]]:
 		"""
-		Convert the numeric in-style parameters to numeric out-style
-		parameters.
+		Convert the numeric in-style parameters to numeric out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-index
-			(:class:`int`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-index (:class:`int`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-indices
-			(:class:`list` of :class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-indices (:class:`list` of :class:`int`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`list`).
 		"""
@@ -1245,7 +1217,7 @@ class NumericToNumericConverter(NumericConverter):
 				elif isinstance(in_params, Mapping):
 					in_params = self._mapping_as_sequence(in_params)  # noqa
 				else:
-					raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+					raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: List[Any] = [None] * size
 			for expand_tuple, in_index, out_index in param_conversions:
@@ -1254,9 +1226,9 @@ class NumericToNumericConverter(NumericConverter):
 					values = in_params[in_index]
 					out_indices = out_index
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_index, values))
+						raise TypeError(f"many_params[{i}][{in_index!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != len(out_indices):
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_index, values, len(out_indices)))
+						raise ValueError(f"many_params[{i}][{in_index!r}]={values!r} length was expected to be {len(out_indices)}.")
 
 					for sub_index, sub_value in zip(out_indices, values):
 						out_params[sub_index] = sub_value
@@ -1275,22 +1247,19 @@ class NumericToNumericConverter(NumericConverter):
 		param_conversions: List[Tuple[bool, int, Union[int, List[int]]]],
 	) -> List[Any]:
 		"""
-		Convert the numeric in-style parameters to numeric out-style
-		parameters.
+		Convert the numeric in-style parameters to numeric out-style parameters.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-index
-			(:class:`int`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-index (:class:`int`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-indices
-			(:class:`list` of :class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-indices (:class:`list` of :class:`int`).
 
 		Returns the out-style parameters (:class:`list`).
 		"""
@@ -1323,14 +1292,14 @@ class NumericToNumericConverter(NumericConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*out_counter* (:class:`~collections.abc.Iterator`) is used to
-		generate new out-indices.
+		*out_counter* (:class:`~collections.abc.Iterator`) is used to generate new
+		out-indices.
 
 		*out_lookup* (:class:`dict`) caches out-parameter information.
 
@@ -1399,8 +1368,8 @@ class NumericToNumericConverter(NumericConverter):
 
 class NumericToOrdinalConverter(NumericConverter):
 	"""
-	The :class:`.NumericToOrdinalConverter` class is used to convert
-	numeric in-style parameters to ordinal out-style parameters.
+	The :class:`.NumericToOrdinalConverter` class is used to convert numeric
+	in-style parameters to ordinal out-style parameters.
 	"""
 
 	_out_style: _styles.OrdinalStyle
@@ -1411,23 +1380,23 @@ class NumericToOrdinalConverter(NumericConverter):
 		params: Union[Sequence[Any], Dict[Union[int, str], Any]],
 	) -> Tuple[str, List[Any]]:
 		"""
-		Convert the SQL query to use the ordinal out-style parameters from
-		the numeric the in-style parameters.
+		Convert the SQL query to use the ordinal out-style parameters from the
+		numeric the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Sequence` or :class:`~collections.abc.Mapping`)
 		contains the in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`list`).
 		"""
 		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
 		else:
-			raise TypeError("params:{!r} is not a sequence or mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1445,18 +1414,17 @@ class NumericToOrdinalConverter(NumericConverter):
 		many_params: Union[Iterable[Sequence[Any]], Iterable[Dict[Union[int, str], Any]]],
 	) -> Tuple[str, List[List[Any]]]:
 		"""
-		Convert the SQL query to use the ordinal out-style parameters from
-		the numeric the in-style parameters.
+		Convert the SQL query to use the ordinal out-style parameters from the
+		numeric the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Sequence` or
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Sequence` or
 		:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`list`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
@@ -1466,7 +1434,7 @@ class NumericToOrdinalConverter(NumericConverter):
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
 		else:
-			raise TypeError("many_params[0]:{!r} is not a sequence or mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1484,22 +1452,19 @@ class NumericToOrdinalConverter(NumericConverter):
 		param_conversions: List[Tuple[bool, int, Optional[int]]],
 	) -> List[List[Any]]:
 		"""
-		Convert the numeric in-style parameters to ordinal out-style
-		parameters.
+		Convert the numeric in-style parameters to ordinal out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-count
-			(:data:`None`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-count (``None``).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-count
-			(:class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-count (:class:`int`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`list`).
 		"""
@@ -1512,7 +1477,7 @@ class NumericToOrdinalConverter(NumericConverter):
 				elif isinstance(in_params, Mapping):
 					in_params = self._mapping_as_sequence(in_params)  # noqa
 				else:
-					raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+					raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: List[Any] = []
 			for expand_tuple, in_index, out_count in param_conversions:
@@ -1520,9 +1485,9 @@ class NumericToOrdinalConverter(NumericConverter):
 					# Tuple conversion.
 					values = in_params[in_index]
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_index, values))
+						raise TypeError(f"many_params[{i}][{in_index!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != out_count:
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_index, values, out_count))
+						raise ValueError(f"many_params[{i}][{in_index!r}]={values!r} length was expected to be {out_count}.")
 
 					for sub_value in values:
 						out_params.append(sub_value)
@@ -1541,22 +1506,19 @@ class NumericToOrdinalConverter(NumericConverter):
 		param_conversions: List[Tuple[bool, int, Optional[int]]],
 	) -> List[Any]:
 		"""
-		Convert the numeric in-style parameters to ordinal out-style
-		parameters.
+		Convert the numeric in-style parameters to ordinal out-style parameters.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-count
-			(:data:`None`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-count (``None``).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-count
-			(:class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-count (:class:`int`).
 
 		Returns the out-style parameters (:class:`list`).
 		"""
@@ -1583,14 +1545,13 @@ class NumericToOrdinalConverter(NumericConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*out_format* (:class:`str`) is the out-style parameter format
-		string.
+		*out_format* (:class:`str`) is the out-style parameter format string.
 
 		*match* (:class:`re.Match`) is the in-parameter match.
 
@@ -1630,9 +1591,8 @@ class NumericToOrdinalConverter(NumericConverter):
 
 class OrdinalConverter(Converter):
 	"""
-	The :class:`.OrdinalConverter` class is the base class for
-	implementing the conversion from one ordinal in-style parameter to
-	another out-style parameter.
+	The :class:`.OrdinalConverter` class is the base class for implementing the
+	conversion from one ordinal in-style parameter to another out-style parameter.
 	"""
 
 	@staticmethod
@@ -1642,8 +1602,7 @@ class OrdinalConverter(Converter):
 		"""
 		Convert the in-parameters to mimic a sequence.
 
-		*in_params* (:class:`~collections.abc.Mapping`) is the
-		in-parameters.
+		*in_params* (:class:`~collections.abc.Mapping`) is the in-parameters.
 
 		Returns the converted in-parameters (:class:`~collections.abc.Mapping`).
 		"""
@@ -1668,23 +1627,23 @@ class OrdinalToNamedConverter(OrdinalConverter):
 		params: Union[Sequence[Any], Dict[Union[int, str], Any]],
 	) -> Tuple[str, Dict[str, Any]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		ordinal the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the ordinal
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Sequence` or :class:`~collections.abc.Mapping`)
 		contains the in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`dict`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`dict`).
 		"""
 		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
 		else:
-			raise TypeError("params:{!r} is not a sequence or mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1702,18 +1661,17 @@ class OrdinalToNamedConverter(OrdinalConverter):
 		many_params: Union[Iterable[Sequence[Any]], Iterable[Dict[Union[int, str], Any]]],
 	) -> Tuple[str, List[Dict[str, Any]]]:
 		"""
-		Convert the SQL query to use the named out-style parameters from the
-		ordinal the in-style parameters.
+		Convert the SQL query to use the named out-style parameters from the ordinal
+		the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Sequence` or
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Sequence` or
 		:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`dict`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`dict`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
@@ -1723,7 +1681,7 @@ class OrdinalToNamedConverter(OrdinalConverter):
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
 		else:
-			raise TypeError("many_params[0]:{!r} is not a sequence or mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1742,22 +1700,19 @@ class OrdinalToNamedConverter(OrdinalConverter):
 		param_conversions: List[Tuple[bool, int, Union[str, List[str]]]],
 	) -> List[Dict[str, Any]]:
 		"""
-		Convert the ordinal in-style parameters to named out-style
-		parameters.
+		Convert the ordinal in-style parameters to named out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-name
-			(:class:`str`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+		in-index (:class:`int`), and the out-name (:class:`str`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`str`), and the out-names
-			(:class:`list` of :class:`str`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`str`), and the out-names (:class:`list` of :class:`str`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`dict`).
 		"""
@@ -1770,7 +1725,7 @@ class OrdinalToNamedConverter(OrdinalConverter):
 				elif isinstance(in_params, Mapping):
 					in_params = cls._mapping_as_sequence(in_params)  # noqa
 				else:
-					raise TypeError("many_params[{}]:{!r} is not a sequence or mapping.".format(i, in_params))
+					raise TypeError(f"many_params[{i}]={in_params!r} is not a sequence or mapping.")
 
 			out_params: Dict[str, Any] = {}
 			for expand_tuple, in_index, out_name in param_conversions:
@@ -1779,9 +1734,9 @@ class OrdinalToNamedConverter(OrdinalConverter):
 					out_names = out_name
 					values = in_params[in_index]
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_index, values))
+						raise TypeError(f"many_params[{i}][{in_index!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != len(out_names):
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_index, values, len(out_names)))
+						raise ValueError(f"many_params[{i}][{in_index!r}]={values!r} length was expected to be {len(out_names)}.")
 
 					for sub_name, sub_value in zip(out_names, values):
 						out_params[sub_name] = sub_value
@@ -1800,22 +1755,19 @@ class OrdinalToNamedConverter(OrdinalConverter):
 		param_conversions: List[Tuple[bool, int, Union[str, List[str]]]],
 	) -> Dict[str, Any]:
 		"""
-		Convert the ordinal in-style parameters to named out-style
+		Convert the ordinal in-style parameters to named out-style parameters.
+
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
 		parameters.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters.
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-name (:class:`str`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-name
-			(:class:`str`).
-
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`str`), and the out-names
-			(:class:`list` of :class:`str`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`str`), and the out-names (:class:`list` of :class:`str`).
 
 		Returns the out-style parameters (:class:`dict`).
 		"""
@@ -1843,14 +1795,14 @@ class OrdinalToNamedConverter(OrdinalConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*in_counter* (:class:`~collections.abc.Iterator`) is used to
-		generate next in-indices.
+		*in_counter* (:class:`~collections.abc.Iterator`) is used to generate next
+		in-indices.
 
 		*match* (:class:`re.Match`) is the in-parameter match.
 
@@ -1882,7 +1834,7 @@ class OrdinalToNamedConverter(OrdinalConverter):
 				out_names = []
 				out_replacements = []
 				for i, sub_value in enumerate(value):
-					out_name = "_{}_{}".format(in_index, i)
+					out_name = f"_{in_index}_{i}"
 					out_repl = self._out_format.format(param=out_name)
 					out_names.append(out_name)
 					out_replacements.append(out_repl)
@@ -1892,7 +1844,7 @@ class OrdinalToNamedConverter(OrdinalConverter):
 
 			else:
 				# Convert ordinal parameter.
-				out_name = "_{}".format(in_index)
+				out_name = f"_{in_index}"
 				out_repl = self._out_format.format(param=out_name)
 				param_conversions.append((False, in_index, out_name))
 				return out_repl
@@ -1900,8 +1852,8 @@ class OrdinalToNamedConverter(OrdinalConverter):
 
 class OrdinalToNumericConverter(OrdinalConverter):
 	"""
-	The :class:`.OrdinalToNumericConverter` class is used to convert
-	ordinal in-style parameters to numeric out-style parameters.
+	The :class:`.OrdinalToNumericConverter` class is used to convert ordinal
+	in-style parameters to numeric out-style parameters.
 	"""
 
 	_out_style: _styles.NumericStyle
@@ -1914,8 +1866,8 @@ class OrdinalToNumericConverter(OrdinalConverter):
 
 		self.__out_start = self._out_style.start
 		"""
-		*__out_start* (:class:`int`) indicates to start enumerating
-		out-parameters at the specified number.
+		*__out_start* (:class:`int`) indicates to start enumerating out-parameters
+		at the specified number.
 		"""
 
 	def convert(
@@ -1924,23 +1876,23 @@ class OrdinalToNumericConverter(OrdinalConverter):
 		params: Union[Sequence[Any], Dict[Union[int, str], Any]],
 	) -> Tuple[str, List[Any]]:
 		"""
-		Convert the SQL query to use the numeric out-style parameters from
-		the ordinal the in-style parameters.
+		Convert the SQL query to use the numeric out-style parameters from the
+		ordinal the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Sequence` or :class:`~collections.abc.Mapping`)
 		contains the in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`list`).
 		"""
 		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
 		else:
-			raise TypeError("params:{!r} is not a sequence or mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -1959,18 +1911,17 @@ class OrdinalToNumericConverter(OrdinalConverter):
 		many_params: Union[Iterable[Sequence[Any]], Iterable[Dict[Union[int, str], Any]]],
 	) -> Tuple[str, List[List[Any]]]:
 		"""
-		Convert the SQL query to use the numeric out-style parameters from
-		the ordinal the in-style parameters.
+		Convert the SQL query to use the numeric out-style parameters from the
+		ordinal the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Sequence` or
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Sequence` or
 		:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
-		:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of :class:`list`).
 		"""
 		iter_params = iter(many_params)
 		first_params = next(iter_params)
@@ -1980,7 +1931,7 @@ class OrdinalToNumericConverter(OrdinalConverter):
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
 		else:
-			raise TypeError("many_params[0]:{!r} is not a sequence or mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -2000,22 +1951,19 @@ class OrdinalToNumericConverter(OrdinalConverter):
 		param_conversions: List[Tuple[bool, int, Union[int, List[int]]]],
 	) -> List[List[Any]]:
 		"""
-		Convert the ordinal in-style parameters to numeric out-style
-		parameters.
+		Convert the ordinal in-style parameters to numeric out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-index
-			(:class:`int`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-index (:class:`int`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-indices
-			(:class:`list` of :class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-indices (:class:`list` of :class:`int`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`list`).
 		"""
@@ -2032,7 +1980,7 @@ class OrdinalToNumericConverter(OrdinalConverter):
 				elif isinstance(in_params, Mapping):
 					in_params = cls._mapping_as_sequence(in_params)  # noqa
 				else:
-					raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+					raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: List[Any] = [None] * size
 			for expand_tuple, in_index, out_index in param_conversions:
@@ -2041,9 +1989,9 @@ class OrdinalToNumericConverter(OrdinalConverter):
 					values = in_params[in_index]
 					out_indices = out_index
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_index, values))
+						raise TypeError(f"many_params[{i}][{in_index!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != len(out_indices):
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_index, values, len(out_indices)))
+						raise ValueError(f"many_params[{i}][{in_index!r}]={values!r} length was expected to be {len(out_indices)}.")
 
 					for sub_index, sub_value in zip(out_indices, values):
 						out_params[sub_index] = sub_value
@@ -2062,22 +2010,19 @@ class OrdinalToNumericConverter(OrdinalConverter):
 		param_conversions: List[Tuple[bool, int, Union[int, List[int]]]],
 	) -> List[Any]:
 		"""
-		Convert the ordinal in-style parameters to numeric out-style
-		parameters.
+		Convert the ordinal in-style parameters to numeric out-style parameters.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-index
-			(:class:`int`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-index (:class:`int`).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-indices
-			(:class:`list` of :class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-indices (:class:`list` of :class:`int`).
 
 		Returns the out-style parameters (:class:`list`).
 		"""
@@ -2110,17 +2055,17 @@ class OrdinalToNumericConverter(OrdinalConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*in_counter* (:class:`~collections.abc.Iterator`) is used to
-		generate next in-indices.
+		*in_counter* (:class:`~collections.abc.Iterator`) is used to generate next
+		in-indices.
 
-		*out_counter* (:class:`~collections.abc.Iterator`) is used to
-		generate new out-indices.
+		*out_counter* (:class:`~collections.abc.Iterator`) is used to generate new
+		out-indices.
 
 		*match* (:class:`re.Match`) is the in-parameter match.
 
@@ -2167,8 +2112,8 @@ class OrdinalToNumericConverter(OrdinalConverter):
 
 class OrdinalToOrdinalConverter(OrdinalConverter):
 	"""
-	The :class:`.OrdinalToOrdinalConverter` class is used to convert
-	ordinal in-style parameters to ordinal out-style parameters.
+	The :class:`.OrdinalToOrdinalConverter` class is used to convert ordinal
+	in-style parameters to ordinal out-style parameters.
 	"""
 
 	_out_style: _styles.OrdinalStyle
@@ -2179,23 +2124,23 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 		params: Union[Sequence[Any], Dict[Union[int, str], Any]],
 	) -> Tuple[str, List[Any]]:
 		"""
-		Convert the SQL query to use the ordinal out-style parameters from
-		the ordinal the in-style parameters.
+		Convert the SQL query to use the ordinal out-style parameters from the
+		ordinal the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
 		*params* (:class:`~collections.abc.Sequence` or :class:`~collections.abc.Mapping`)
 		contains the in-style parameters.
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the out-style parameters (:class:`list`).
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the out-style parameters (:class:`list`).
 		"""
 		if is_sequence(params):
 			pass
 		elif isinstance(params, Mapping):
 			params = self._mapping_as_sequence(params)  # noqa
 		else:
-			raise TypeError("params:{!r} is not a sequence or mapping.".format(params))
+			raise TypeError(f"{params=!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -2214,17 +2159,17 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 		many_params: Union[Iterable[Sequence[Any]], Iterable[Dict[Union[int, str], Any]]],
 	) -> Tuple[str, List[List[Any]]]:
 		"""
-		Convert the SQL query to use the ordinal out-style parameters from
-		the ordinal the in-style parameters.
+		Convert the SQL query to use the ordinal out-style parameters from the
+		ordinal the in-style parameters.
 
 		*sql* (:class:`str`) is the SQL query.
 
-		*many_params* (:class:`~collections.abc.Iterable`) contains each set
-		of in-style parameters (:class:`~collections.abc.Sequence` or
+		*many_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters (:class:`~collections.abc.Sequence` or
 		:class:`~collections.abc.Mapping`).
 
-		Returns a :class:`tuple` containing: the converted SQL query
-		(:class:`str`), and the many out-style parameters (:class:`list` of
+		Returns a :class:`tuple` containing: the converted SQL query (:class:`str`),
+		and the many out-style parameters (:class:`list` of
 		:class:`list`).
 		"""
 		iter_params = iter(many_params)
@@ -2235,7 +2180,7 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 		elif isinstance(first_params, Mapping):
 			first_params = self._mapping_as_sequence(first_params)  # noqa
 		else:
-			raise TypeError("many_params[0]:{!r} is not a sequence or mapping.".format(first_params))
+			raise TypeError(f"many_params[0]={first_params!r} is not a sequence or mapping.")
 
 		# Convert query.
 		param_conversions = []
@@ -2255,22 +2200,19 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 		param_conversions: List[Tuple[bool, int, Optional[int]]],
 	) -> List[List[Any]]:
 		"""
-		Convert the ordinal in-style parameters to ordinal out-style
-		parameters.
+		Convert the ordinal in-style parameters to ordinal out-style parameters.
 
-		*many_in_params* (:class:`~collections.abc.Iterable`) contains each
-		set of in-style parameters.
+		*many_in_params* (:class:`~collections.abc.Iterable`) contains each set of
+		in-style parameters.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-count
-			(:data:`None`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-count (``None``).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-count
-			(:class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-count (:class:`int`).
 
 		Returns the many out-style parameters (:class:`list` of :class:`list`).
 		"""
@@ -2283,7 +2225,7 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 				elif isinstance(in_params, Mapping):
 					in_params = cls._mapping_as_sequence(in_params)  # noqa
 				else:
-					raise TypeError("many_params[{}]:{!r} is not a mapping.".format(i, in_params))
+					raise TypeError(f"many_params[{i}]={in_params!r} is not a mapping.")
 
 			out_params: List[Any] = []
 			for expand_tuple, in_index, out_count in param_conversions:
@@ -2291,9 +2233,9 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 					# Tuple conversion.
 					values = in_params[in_index]
 					if not isinstance(values, tuple):
-						raise TypeError("many_params[{}][{!r}]:{!r} was expected to be a tuple.".format(i, in_index, values))
+						raise TypeError(f"many_params[{i}][{in_index!r}]={values!r} was expected to be a tuple.")
 					elif len(values) != out_count:
-						raise ValueError("many_params[{}][{!r}]:{!r} length was expected to be {}.".format(i, in_index, values, out_count))
+						raise ValueError(f"many_params[{i}][{in_index!r}]={values!r} length was expected to be {out_count}.")
 
 					for sub_value in values:
 						out_params.append(sub_value)
@@ -2312,22 +2254,19 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 		param_conversions: List[Tuple[bool, int, Optional[int]]],
 	) -> List[Any]:
 		"""
-		Convert the ordinal in-style parameters to ordinal out-style
-		parameters.
+		Convert the ordinal in-style parameters to ordinal out-style parameters.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) contains each parameter
-		conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) contains each parameter conversion to
+		perform (:class:`tuple`).
 
-		-	A simple conversion contains: whether to expand tuples
-			(:data:`False`), the in-index (:class:`int`), and the out-count
-			(:data:`None`).
+		-	A simple conversion contains: whether to expand tuples (``False``), the
+			in-index (:class:`int`), and the out-count (``None``).
 
-		-	A tuple conversion contains: whether to expand tuples
-			(:data:`True`), the in-index (:class:`int`), and the out-count
-			(:class:`int`).
+		-	A tuple conversion contains: whether to expand tuples (``True``), the
+			in-index (:class:`int`), and the out-count (:class:`int`).
 
 		Returns the out-style parameters (:class:`list`).
 		"""
@@ -2355,17 +2294,16 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 		"""
 		Regular expression replace callback.
 
-		*in_params* (:class:`~collections.abc.Sequence`) contains the
-		in-style parameters to sample.
+		*in_params* (:class:`~collections.abc.Sequence`) contains the in-style
+		parameters to sample.
 
-		*param_conversions* (:class:`list`) will be outputted with each
-		parameter conversion to perform (:class:`tuple`).
+		*param_conversions* (:class:`list`) will be outputted with each parameter
+		conversion to perform (:class:`tuple`).
 
-		*in_counter* (:class:`~collections.abc.Iterator`) is used to
-		generate next in-indices.
+		*in_counter* (:class:`~collections.abc.Iterator`) is used to generate next
+		in-indices.
 
-		*out_format* (:class:`str`) is the out-style parameter format
-		string.
+		*out_format* (:class:`str`) is the out-style parameter format string.
 
 		*match* (:class:`re.Match`) is the in-parameter match.
 
