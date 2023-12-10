@@ -15,13 +15,12 @@ sqlparams
       .. automethod:: __init__
 
 
-
-.. include:: ../../CHANGES.rst
-
-
 sqlparams.typing
 ----------------
 
 .. automodule:: sqlparams.typing
   :members:
   :show-inheritance:
+
+
+.. include:: ../../CHANGES.rst
