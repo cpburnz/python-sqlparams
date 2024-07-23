@@ -66,6 +66,7 @@ class SQLParams(object):
 		escape_char: Union[str, bool, None] = None,
 		expand_tuples: Optional[bool] = None,
 		strip_comments: Union[Sequence[Union[str, Tuple[str, str]]], bool, None] = None,
+		allow_out_quotes: bool = False,
 	) -> None:
 		"""
 		Instantiates the :class:`.SQLParams` instance.
@@ -212,6 +213,7 @@ class SQLParams(object):
 			in_style=in_style,
 			out_obj=out_obj,
 			out_style=out_style,
+			allow_out_quotes=allow_out_quotes,
 		)
 		"""
 		*__converter* (:class:`._converting.Converter`) is the parameter converter
@@ -292,6 +294,7 @@ class SQLParams(object):
 		in_style: str,
 		out_obj: _styles.Style,
 		out_style: str,
+		allow_out_quotes: bool,
 	) -> _converting.Converter:
 		"""
 		Create the parameter style converter.
@@ -357,6 +360,7 @@ class SQLParams(object):
 			in_regex=in_regex,
 			in_style=in_obj,
 			out_style=out_obj,
+			allow_out_quotes=allow_out_quotes
 		)
 		return converter
 
