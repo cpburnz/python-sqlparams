@@ -168,6 +168,114 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(many_params, dest_params)
 
+	def test_1_named_oracle_to_pyformat_no_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :name
+
+		to::
+
+			... WHERE name = %(NAME)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :id OR name = :name;
+		"""
+		src_params = {'id': 4, 'name': "Fili"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = %(ID)s OR name = %(NAME)s;
+		"""
+		dest_params = {k.upper(): src_params[k] for k in src_params}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_named_oracle_to_pyformat_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :"name"
+
+		to::
+
+			... WHERE name = %(name)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM "users"
+			WHERE "id" = :"id" OR "name" = :"name";
+		"""
+		src_params = {'"id"': 4, '"name"': "Fili"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM "users"
+			WHERE "id" = %(id)s OR "name" = %(name)s;
+		"""
+		dest_params = {k[1:-1]: src_params[k] for k in src_params}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_named_oracle_to_pyformat_mixed(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :"name"
+
+		to::
+
+			... WHERE name = %(name)s
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'pyformat')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM "users"
+			WHERE "id" = :"ID" OR "name" = :name;
+		"""
+		src_params = {'id': 4, '"NAME"': "Fili"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM "users"
+			WHERE "id" = %(ID)s OR "name" = %(NAME)s;
+		"""
+		dest_params = {"ID": src_params["id"], "NAME": src_params['"NAME"']}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
 	def test_1_pyformat_to_named(self):
 		"""
 		Test converting from::
@@ -245,6 +353,78 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(many_params, dest_params)
 
+	def test_1_pyformat_to_named_oracle_no_quote(self):
+		"""
+		Test converting from::
+
+			... WHERE name = %(name)s
+
+		to::
+
+			... WHERE name = :name
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('pyformat', 'named_oracle')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = %(id)s OR name = %(name)s;
+		"""
+		src_params = {'id': 4, 'name': "Fili"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :id OR name = :name;
+		"""
+		dest_params = copy.deepcopy(src_params)
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_pyformat_to_named_oracle_quote(self):
+		"""
+		Test converting from::
+
+			... WHERE name = %(name)s
+
+		to::
+
+			... WHERE name = :"name"
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('pyformat', 'named_oracle', allow_out_quotes=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = %(id)s OR name = %(name)s;
+		"""
+		src_params = {'id': 4, 'name': "Fili"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"id" OR name = :"name";
+		"""
+		dest_params = {f'"{k}"': src_params[k] for k in src_params}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
 	def test_2_expand_tuples(self):
 		"""
 		Test expanding tuples.
@@ -267,6 +447,36 @@ class Test(unittest.TestCase):
 			WHERE race = :race AND name IN (:names__0_sqlp,:names__1_sqlp);
 		"""
 		dest_params = {'race': src_params['race'], 'names__0_sqlp': src_params['names'][0], 'names__1_sqlp': src_params['names'][1]}
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_2_expand_tuples_oracle(self):
+		"""
+		Test expanding tuples.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named', 'named_oracle', expand_tuples=True, allow_out_quotes=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE race = :race AND name IN :names;
+		"""
+		src_params = {'names': ("Dwalin", "Balin"), 'race': "Dwarf"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE race = :"race" AND name IN (:"names__0_sqlp",:"names__1_sqlp");
+		"""
+		dest_params = {'"race"': src_params['race'], '"names__0_sqlp"': src_params['names'][0], '"names__1_sqlp"': src_params['names'][1]}
 
 		# Format SQL with params.
 		sql, params = query.format(src_sql, src_params)

@@ -38,6 +38,7 @@ class Converter(object):
 		in_regex: Pattern[str],
 		in_style: _styles.Style,
 		out_style: _styles.Style,
+		allow_out_quotes: bool,
 	) -> None:
 		"""
 		Initializes the :class:`.Converter` instance.
@@ -75,6 +76,11 @@ class Converter(object):
 		self._out_style: _styles.Style = out_style
 		"""
 		*_out_style* (:class:`._styles.Style`) is the out-style to use.
+		"""
+
+		self._out_quotes: bool = out_style.param_quotes and allow_out_quotes
+		"""
+		*_out_quotes* (:class:`bool`) whether enclosing out parameters in double quotes.
 		"""
 
 	def convert(
@@ -281,6 +287,14 @@ class NamedToNamedConverter(NamedConverter):
 
 		return out_params
 
+	@staticmethod
+	def __unquote_param(param: str) -> str:
+		if len(param) > 1 and param[0] == param[-1] == '"':
+			return param[1:-1]
+		if len(param) > 0 and (param[0] == '"' or param[-1] == '"'):
+			raise KeyError(param)
+		return param.upper()
+
 	def __regex_replace(
 		self,
 		in_params: Dict[str, Any],
@@ -314,9 +328,20 @@ class NamedToNamedConverter(NamedConverter):
 
 		else:
 			# Named parameter matched, return named out-style parameter.
-			in_name = result['param']
+			in_name_sql = result['param']
+			quote = result.get("quote")
+			if self._in_style.param_quotes:
+				in_name = in_name_sql if quote else in_name_sql.upper()
+				for in_name_param, in_value in in_params.items():
+					if NamedToNamedConverter.__unquote_param(in_name_param) == in_name:
+						value = in_value
+						break
+				else:
+					raise KeyError(in_name_sql)
+			else:
+				in_name_param = in_name = in_name_sql
+				value = in_params[in_name]
 
-			value = in_params[in_name]
 			if self._expand_tuples and isinstance(value, tuple):
 				if not value:
 					# Safely expand an empty tuple.
@@ -327,6 +352,7 @@ class NamedToNamedConverter(NamedConverter):
 				out_replacements = []
 				for i, sub_value in enumerate(value):
 					out_name = "{}__{}_sqlp".format(in_name, i)
+					out_name = f'"{out_name}"' if self._out_quotes else out_name
 					out_repl = self._out_format.format(param=out_name)
 					out_names.append(out_name)
 					out_replacements.append(out_repl)
@@ -336,8 +362,9 @@ class NamedToNamedConverter(NamedConverter):
 
 			else:
 				# Convert named parameter.
-				out_repl = self._out_format.format(param=in_name)
-				param_conversions.append((False, in_name, in_name))
+				out_name = f'"{in_name}"' if self._out_quotes else in_name
+				out_repl = self._out_format.format(param=out_name)
+				param_conversions.append((False, in_name_param, out_name))
 				return out_repl
 
 
