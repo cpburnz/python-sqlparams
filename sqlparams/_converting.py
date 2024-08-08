@@ -73,14 +73,15 @@ class Converter(object):
 		string.
 		"""
 
+		self._out_quotes: bool = out_style.param_quotes and allow_out_quotes
+		"""
+		*_out_quotes* (:class:`bool`) whether enclosing out parameters in double
+		quotes.
+		"""
+
 		self._out_style: _styles.Style = out_style
 		"""
 		*_out_style* (:class:`._styles.Style`) is the out-style to use.
-		"""
-
-		self._out_quotes: bool = out_style.param_quotes and allow_out_quotes
-		"""
-		*_out_quotes* (:class:`bool`) whether enclosing out parameters in double quotes.
 		"""
 
 	def convert(
@@ -287,14 +288,6 @@ class NamedToNamedConverter(NamedConverter):
 
 		return out_params
 
-	@staticmethod
-	def __unquote_param(param: str) -> str:
-		if len(param) > 1 and param[0] == param[-1] == '"':
-			return param[1:-1]
-		if len(param) > 0 and (param[0] == '"' or param[-1] == '"'):
-			raise KeyError(param)
-		return param.upper()
-
 	def __regex_replace(
 		self,
 		in_params: Dict[str, Any],
@@ -333,7 +326,7 @@ class NamedToNamedConverter(NamedConverter):
 			if self._in_style.param_quotes:
 				in_name = in_name_sql if quote else in_name_sql.upper()
 				for in_name_param, in_value in in_params.items():
-					if NamedToNamedConverter.__unquote_param(in_name_param) == in_name:
+					if _unquote_oracle_param(in_name_param) == in_name:
 						value = in_value
 						break
 				else:
@@ -351,18 +344,23 @@ class NamedToNamedConverter(NamedConverter):
 				out_names = []
 				out_replacements = []
 				for i, sub_value in enumerate(value):
-					out_name = "{}__{}_sqlp".format(in_name, i)
-					out_name = f'"{out_name}"' if self._out_quotes else out_name
+					out_name = f"{in_name}__{i}_sqlp"
+					if self._out_quotes:
+						out_name = _quote_oracle_param(out_name)
+
 					out_repl = self._out_format.format(param=out_name)
 					out_names.append(out_name)
 					out_replacements.append(out_repl)
 
-				param_conversions.append((True, in_name, out_names))
+				param_conversions.append((True, in_name_param, out_names))
 				return "({})".format(",".join(out_replacements))
 
 			else:
 				# Convert named parameter.
-				out_name = f'"{in_name}"' if self._out_quotes else in_name
+				out_name = in_name
+				if self._out_quotes:
+					out_name = _quote_oracle_param(out_name)
+
 				out_repl = self._out_format.format(param=out_name)
 				param_conversions.append((False, in_name_param, out_name))
 				return out_repl
@@ -586,9 +584,20 @@ class NamedToNumericConverter(NamedConverter):
 
 		else:
 			# Named parameter matched, return numeric out-style parameter.
-			in_name = result['param']
+			in_name_sql = result['param']
+			quote = result.get("quote")
+			if self._in_style.param_quotes:
+				in_name = in_name_sql if quote else in_name_sql.upper()
+				for in_name_param, in_value in in_params.items():
+					if _unquote_oracle_param(in_name_param) == in_name:
+						value = in_value
+						break
+				else:
+					raise KeyError(in_name_sql)
+			else:
+				in_name_param = in_name = in_name_sql
+				value = in_params[in_name]
 
-			value = in_params[in_name]
 			if self._expand_tuples and isinstance(value, tuple):
 				if not value:
 					# Safely expand an empty tuple.
@@ -615,7 +624,7 @@ class NamedToNumericConverter(NamedConverter):
 					out_replacements.append(out_repl)
 
 				if is_new:
-					param_conversions.append((True, in_name, out_indices))
+					param_conversions.append((True, in_name_param, out_indices))
 
 				return "({})".format(",".join(out_replacements))
 
@@ -631,7 +640,7 @@ class NamedToNumericConverter(NamedConverter):
 					out_num = out_index + self.__out_start
 					out_repl = self._out_format.format(param=out_num)
 					out_lookup[in_name] = (out_index, out_repl)
-					param_conversions.append((False, in_name, out_index))
+					param_conversions.append((False, in_name_param, out_index))
 
 				return out_repl
 
@@ -826,22 +835,33 @@ class NamedToOrdinalConverter(NamedConverter):
 			return escape[self._escape_start:]
 
 		else:
-			# Named parameter matched, return ordinal out-style parameter.
-			in_name = result['param']
+			# Named parameter matched, return numeric out-style parameter.
+			in_name_sql = result['param']
+			quote = result.get("quote")
+			if self._in_style.param_quotes:
+				in_name = in_name_sql if quote else in_name_sql.upper()
+				for in_name_param, in_value in in_params.items():
+					if _unquote_oracle_param(in_name_param) == in_name:
+						value = in_value
+						break
+				else:
+					raise KeyError(in_name_sql)
+			else:
+				in_name_param = in_name = in_name_sql
+				value = in_params[in_name]
 
-			value = in_params[in_name]
 			if self._expand_tuples and isinstance(value, tuple):
 				if not value:
 					# Safely expand an empty tuple.
 					return "(NULL)"
 
 				# Convert named parameter by flattening tuple values.
-				param_conversions.append((True, in_name, len(value)))
+				param_conversions.append((True, in_name_param, len(value)))
 				return "({})".format(",".join(out_format for _ in value))
 
 			else:
 				# Convert named parameter.
-				param_conversions.append((False, in_name, None))
+				param_conversions.append((False, in_name_param, None))
 				return out_format
 
 
@@ -2366,3 +2386,30 @@ class OrdinalToOrdinalConverter(OrdinalConverter):
 				# Convert ordinal parameter.
 				param_conversions.append((False, in_index, None))
 				return out_format
+
+
+def _quote_oracle_param(param: str) -> str:
+	"""
+	Quote the Oracle parameter.
+
+	*param* (:class:`str`) is the out-parameter.
+
+	Returns the quoted parameter (:class:`str`).
+	"""
+	out_name = param.replace('"', '""')
+	return f'"{out_name}"'
+
+
+def _unquote_oracle_param(param: str) -> str:
+	"""
+	Unquote the Oracle parameter.
+
+	*param* (:class:`str`) is the in-parameter.
+
+	Returns the unquoted parameter (:class:`str`).
+	"""
+	if len(param) > 1 and param[0] == param[-1] == '"':
+		return param[1:-1]
+	elif len(param) > 0 and (param[0] == '"' or param[-1] == '"'):
+		raise KeyError(param)
+	return param.upper()

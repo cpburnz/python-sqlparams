@@ -66,7 +66,7 @@ class SQLParams(object):
 		escape_char: Union[str, bool, None] = None,
 		expand_tuples: Optional[bool] = None,
 		strip_comments: Union[Sequence[Union[str, Tuple[str, str]]], bool, None] = None,
-		allow_out_quotes: bool = False,
+		allow_out_quotes: Optional[bool] = None,
 	) -> None:
 		"""
 		Instantiates the :class:`.SQLParams` instance.
@@ -90,7 +90,7 @@ class SQLParams(object):
 		*out_style* is a named style, do not expand tuples by default (``False``).
 
 		.. NOTE:: Empty tuples will be safely expanded to ``(NULL)`` to prevent SQL
-		   syntax errors,
+		   syntax errors.
 
 		*strip_comments* (:class:`~collections.abc.Sequence`, :class:`bool`, or
 		``None``) whether to strip out comments and what style of comments to
@@ -103,6 +103,9 @@ class SQLParams(object):
 		will consume characters until the ending string is matched. If ``True``,
 		``DEFAULT_COMMENTS`` will be used (``"--"`` and ``("/*", "*/")`` styles).
 		Default is ``None`` to not remove comments.
+
+		*allow_out_quotes* (:class:`bool` or ``None``) is whether to quote the out
+		parameters when *out_style* supports it. Default is ``None`` for ``False``.
 
 		The following parameter styles are supported by both *in_style* and
 		*out_style*:
@@ -213,7 +216,7 @@ class SQLParams(object):
 			in_style=in_style,
 			out_obj=out_obj,
 			out_style=out_style,
-			allow_out_quotes=allow_out_quotes,
+			allow_out_quotes=bool(allow_out_quotes),
 		)
 		"""
 		*__converter* (:class:`._converting.Converter`) is the parameter converter

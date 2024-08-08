@@ -169,6 +169,164 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(many_params, dest_params)
 
+	def test_1_named_oracle_1_to_numeric_no_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :name
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :ID OR name = :Name AND race = :race;
+		"""
+		src_params = {'id': 4, 'name': "Fili", 'race': "dwarf"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [src_params['id'], src_params['name'], src_params['race']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_named_oracle_1_to_numeric_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :"name"
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"ID" OR name = :"Name" AND race = :"race";
+		"""
+		src_params = {'"ID"': 4, '"Name"': "Fili", '"race"': "dwarf"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [src_params['"ID"'], src_params['"Name"'], src_params['"race"']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_named_oracle_2_to_numeric_many_no_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :name
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :ID OR name = :Name AND race = :race;
+		"""
+		src_params = [
+			{'id': 7, 'name': "Ori", 'race': "dwarf"},
+			{'id': 5, 'name': "Dori", 'race': "dwarf"},
+			{'id': 10, 'name': "Bifur", 'race': "dwarf"},
+		]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [
+			[__row[__k] for __k in ['id', 'name', 'race']]
+			for __row in src_params
+		]
+
+		# Format SQL with params.
+		sql, many_params = query.formatmany(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(many_params, dest_params)
+
+	def test_1_named_oracle_2_to_numeric_many_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :"name"
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"ID" OR name = :"Name" AND race = :"race";
+		"""
+		src_params = [
+			{'"ID"': 7, '"Name"': "Ori", '"race"': "dwarf"},
+			{'"ID"': 5, '"Name"': "Dori", '"race"': "dwarf"},
+			{'"ID"': 10, '"Name"': "Bifur", '"race"': "dwarf"},
+		]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [
+			[__row[__k] for __k in ['"ID"', '"Name"', '"race"']]
+			for __row in src_params
+		]
+
+		# Format SQL with params.
+		sql, many_params = query.formatmany(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(many_params, dest_params)
+
 	def test_1_pyformat_to_numeric_dollar(self):
 		"""
 		Test converting from::

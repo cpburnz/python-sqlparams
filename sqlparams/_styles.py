@@ -23,7 +23,7 @@ class Style(object):
 		escape_regex: str,
 		out_format: str,
 		param_regex: str,
-		param_quotes: bool = False
+		param_quotes: bool = False,
 	) -> None:
 		"""
 		Initializes the :class:`.Style` instances.
@@ -51,15 +51,16 @@ class Style(object):
 		*out_format* (:class:`str`) is the out-style parameter format string.
 		"""
 
+		self.param_quotes: bool = param_quotes
+		"""
+		*param_quotes* (:class:`bool`) is whether the style supports enclosing
+		parameters in quotes.
+		"""
+
 		self.param_regex: str = param_regex
 		"""
 		*param_regex* (:class:`str`) is the regular expression used to extract the
 		parameter.
-		"""
-
-		self.param_quotes: bool = param_quotes
-		"""
-		*param_quotes* (:class:`bool`) whether style supports enclosing parameters in quotes.
 		"""
 
 
@@ -113,15 +114,6 @@ STYLES['named'] = NamedStyle(
 	out_format=":{param}"
 )
 
-STYLES['named_oracle'] = NamedStyle(
-	name="named_oracle",
-	escape_char=":",
-	escape_regex="(?P<escape>{char}:)",
-	param_regex=r'(?<!:):(?P<quote>"?)(?P<param>[A-Za-z_]\w*)(?P=quote)',
-	out_format=":{param}",
-	param_quotes=True
-)
-
 # Define non-standard "named_dollar" parameter style.
 STYLES['named_dollar'] = NamedStyle(
 	name="named_dollar",
@@ -129,6 +121,16 @@ STYLES['named_dollar'] = NamedStyle(
 	escape_regex="(?P<escape>{char}\\$)",
 	param_regex="(?<!\\$)\\$(?P<param>[A-Za-z_]\\w*)",
 	out_format="${param}",
+)
+
+# Define non-standard "named_oracle" parameter style.
+STYLES['named_oracle'] = NamedStyle(
+	name="named_oracle",
+	escape_char=":",
+	escape_regex="(?P<escape>{char}:)",
+	param_regex=r'(?<!:):(?P<quote>"?)(?P<param>[A-Za-z_]\w*)(?P=quote)',
+	out_format=":{param}",
+	param_quotes=True
 )
 
 # Define standard "numeric" parameter style.
