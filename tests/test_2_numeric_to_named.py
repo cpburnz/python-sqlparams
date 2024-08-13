@@ -13,7 +13,7 @@ class Test(unittest.TestCase):
 	parameters.
 
 	From: numeric, numeric_dollar.
-	To: named, named_dollar, pyformat.
+	To: named, named_dollar, named_oracle, pyformat.
 	"""
 
 	def test_1_numeric_dollar_to_named(self):
@@ -48,7 +48,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': id, '_2': name}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -90,9 +93,211 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = :_1 OR name = :_2;
 		"""
-		dest_params = [{'_1': __row['id'], '_2': __row['name']} for __row in base_params]
+		dest_params = [{
+			'_1': __row['id'],
+			'_2': __row['name'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
+			with self.subTest(src=src):
+				# Format SQL with params.
+				sql, many_params = query.formatmany(src_sql, src_params)
+
+				# Make sure desired SQL and parameters are created.
+				self.assertEqual(sql, dest_sql)
+				self.assertEqual(many_params, dest_params)
+
+	def test_1_numeric_dollar_to_named_oracle_1_no_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = $1
+
+		to::
+
+			... WHERE name = :_1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('numeric_dollar', 'named_oracle')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = $1 OR name = $2;
+		"""
+		id, name = 1, "Dwalin"
+		seq_params = [id, name]
+		int_params = {1: id, 2: name}
+		str_params = {'1': id, '2': name}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :_1 OR name = :_2;
+		"""
+		dest_params = {'_1': id, '_2': name}
+
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
+			with self.subTest(src=src):
+				# Format SQL with params.
+				sql, params = query.format(src_sql, src_params)
+
+				# Make sure desired SQL and parameters are created.
+				self.assertEqual(sql, dest_sql)
+				self.assertEqual(params, dest_params)
+
+	def test_1_numeric_dollar_to_named_oracle_1_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = $1
+
+		to::
+
+			... WHERE name = :"_1"
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams(
+			in_style='numeric_dollar',
+			out_style='named_oracle',
+			allow_out_quotes=True,
+		)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = $1 OR name = $2;
+		"""
+		id, name = 1, "Dwalin"
+		seq_params = [id, name]
+		int_params = {1: id, 2: name}
+		str_params = {'1': id, '2': name}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"_1" OR name = :"_2";
+		"""
+		dest_params = {'"_1"': id, '"_2"': name}
+
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
+			with self.subTest(src=src):
+				# Format SQL with params.
+				sql, params = query.format(src_sql, src_params)
+
+				# Make sure desired SQL and parameters are created.
+				self.assertEqual(sql, dest_sql)
+				self.assertEqual(params, dest_params)
+
+	def test_1_numeric_dollar_to_named_oracle_2_many_no_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = $1
+
+		to::
+
+			... WHERE name = :_1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('numeric_dollar', 'named_oracle')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = $1 OR name = $2;
+		"""
+		base_params = [
+			{'id': 5, 'name': "Dori"},
+			{'id': 6, 'name': "Nori"},
+		]
+		seq_params = [[__row['id'], __row['name']] for __row in base_params]
+		int_params = [{1: __row['id'], 2: __row['name']} for __row in base_params]
+		str_params = [{'1': __row['id'], '2': __row['name']} for __row in base_params]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :_1 OR name = :_2;
+		"""
+		dest_params = [{
+			'_1': __row['id'],
+			'_2': __row['name'],
+		} for __row in base_params]
+
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
+			with self.subTest(src=src):
+				# Format SQL with params.
+				sql, many_params = query.formatmany(src_sql, src_params)
+
+				# Make sure desired SQL and parameters are created.
+				self.assertEqual(sql, dest_sql)
+				self.assertEqual(many_params, dest_params)
+
+	def test_1_numeric_dollar_to_named_oracle_2_many_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = $1
+
+		to::
+
+			... WHERE name = :"_1"
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams(
+			in_style='numeric_dollar',
+			out_style='named_oracle',
+			allow_out_quotes=True,
+		)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = $1 OR name = $2;
+		"""
+		base_params = [
+			{'id': 5, 'name': "Dori"},
+			{'id': 6, 'name': "Nori"},
+		]
+		seq_params = [[__row['id'], __row['name']] for __row in base_params]
+		int_params = [{1: __row['id'], 2: __row['name']} for __row in base_params]
+		str_params = [{'1': __row['id'], '2': __row['name']} for __row in base_params]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"_1" OR name = :"_2";
+		"""
+		dest_params = [{
+			'"_1"': __row['id'],
+			'"_2"': __row['name'],
+		} for __row in base_params]
+
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -134,7 +339,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_2': id, '_1': name}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -177,9 +385,15 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = %(_2)s OR name = %(_1)s;
 		"""
-		dest_params = [{'_1': __row['name'], '_2': __row['id']} for __row in base_params]
+		dest_params = [{
+			'_1': __row['name'],
+			'_2': __row['id'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -220,7 +434,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': id, '_2': name}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -264,9 +481,15 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = $_1 OR name = $_2;
 		"""
-		dest_params = [{'_1': __row['id'], '_2': __row['name']} for __row in base_params]
+		dest_params = [{
+			'_1': __row['id'],
+			'_2': __row['name'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -301,7 +524,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': race, '_2_0': names[0], '_2_1': names[1]}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -337,7 +563,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': race, '_2': names}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -372,7 +601,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': race, '_2': names}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -407,7 +639,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': race}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -435,8 +670,14 @@ class Test(unittest.TestCase):
 			{'names': ("Oin", "Gloin"), 'race': "Dwarf"},
 		]
 		seq_params = [[__row['race'], __row['names']] for __row in base_params]
-		int_params = [{1: __row['race'], 2: __row['names']} for __row in base_params]
-		str_params = [{'1': __row['race'], '2': __row['names']} for __row in base_params]
+		int_params = [{
+			1: __row['race'],
+			2: __row['names'],
+		} for __row in base_params]
+		str_params = [{
+			'1': __row['race'],
+			'2': __row['names'],
+		} for __row in base_params]
 
 		# Desired SQL and params.
 		dest_sql = """
@@ -444,9 +685,16 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE race = :_1 AND name IN (:_2_0,:_2_1);
 		"""
-		dest_params = [{'_1': __row['race'], '_2_0': __row['names'][0], '_2_1': __row['names'][1]} for __row in base_params]
+		dest_params = [{
+			'_1': __row['race'],
+			'_2_0': __row['names'][0],
+			'_2_1': __row['names'][1],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -473,10 +721,19 @@ class Test(unittest.TestCase):
 			{'names': ("Thorin",), 'race': "Dwarf"},
 		]
 		seq_params = [[__row['race'], __row['names']] for __row in base_params]
-		int_params = [{1: __row['race'], 2: __row['names']} for __row in base_params]
-		str_params = [{'1': __row['race'], '2': __row['names']} for __row in base_params]
+		int_params = [{
+			1: __row['race'],
+			2: __row['names'],
+		} for __row in base_params]
+		str_params = [{
+			'1': __row['race'],
+			'2': __row['names'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				with self.assertRaisesRegex(ValueError, "length was expected to be 3.$"):
@@ -500,10 +757,19 @@ class Test(unittest.TestCase):
 			{'names': "Thorin", 'race': "Dwarf"},
 		]
 		seq_params = [[__row['race'], __row['names']] for __row in base_params]
-		int_params = [{1: __row['race'], 2: __row['names']} for __row in base_params]
-		str_params = [{'1': __row['race'], '2': __row['names']} for __row in base_params]
+		int_params = [{
+			1: __row['race'],
+			2: __row['names'],
+		} for __row in base_params]
+		str_params = [{
+			'1': __row['race'],
+			'2': __row['names'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				with self.assertRaisesRegex(TypeError, "was expected to be a tuple.$"):
@@ -535,7 +801,10 @@ class Test(unittest.TestCase):
 		"""
 		dest_params = {'_1': id, '_2': name}
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -572,9 +841,15 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = :_1 OR name = :_2 OR altid = :_1 OR altname = :_2;
 		"""
-		dest_params = [{'_1': __row['id'], '_2': __row['name']} for __row in base_params]
+		dest_params = [{
+			'_1': __row['id'],
+			'_2': __row['name'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)

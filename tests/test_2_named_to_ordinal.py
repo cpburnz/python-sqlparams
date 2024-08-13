@@ -622,7 +622,12 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = ? OR name = ? OR altid = ? OR altname = ?;
 		"""
-		dest_params = [src_params['id'], src_params['name'], src_params['id'], src_params['name']]
+		dest_params = [
+			src_params['id'],
+			src_params['name'],
+			src_params['id'],
+			src_params['name'],
+		]
 
 		# Format SQL with params.
 		sql, params = query.format(src_sql, src_params)
@@ -656,7 +661,10 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = ? OR name = ? OR altid = ? OR altname = ?;
 		"""
-		dest_params = [[__row['id'], __row['name'], __row['id'], __row['name']] for __row in src_params]
+		dest_params = [
+			[__row['id'], __row['name'], __row['id'], __row['name']]
+			for __row in src_params
+		]
 
 		# Format SQL with params.
 		sql, many_params = query.formatmany(src_sql, src_params)

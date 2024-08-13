@@ -75,7 +75,7 @@ class Converter(object):
 
 		self._out_quotes: bool = out_style.param_quotes and allow_out_quotes
 		"""
-		*_out_quotes* (:class:`bool`) whether enclosing out parameters in double
+		*_out_quotes* (:class:`bool`) whether to enclose out parameters in double
 		quotes.
 		"""
 
@@ -1120,6 +1120,9 @@ class NumericToNamedConverter(NumericConverter):
 				out_replacements = []
 				for i, sub_value in enumerate(value):
 					out_name = f"_{in_num_str}_{i}"
+					if self._out_quotes:
+						out_name = _quote_oracle_param(out_name)
+
 					out_repl = self._out_format.format(param=out_name)
 					out_names.append(out_name)
 					out_replacements.append(out_repl)
@@ -1130,6 +1133,9 @@ class NumericToNamedConverter(NumericConverter):
 			else:
 				# Convert numeric parameter.
 				out_name = "_" + in_num_str
+				if self._out_quotes:
+					out_name = _quote_oracle_param(out_name)
+
 				out_repl = self._out_format.format(param=out_name)
 				param_conversions.append((False, in_index, out_name))
 				return out_repl
@@ -1882,6 +1888,9 @@ class OrdinalToNamedConverter(OrdinalConverter):
 				out_replacements = []
 				for i, sub_value in enumerate(value):
 					out_name = f"_{in_index}_{i}"
+					if self._out_quotes:
+						out_name = _quote_oracle_param(out_name)
+
 					out_repl = self._out_format.format(param=out_name)
 					out_names.append(out_name)
 					out_replacements.append(out_repl)
@@ -1892,6 +1901,9 @@ class OrdinalToNamedConverter(OrdinalConverter):
 			else:
 				# Convert ordinal parameter.
 				out_name = f"_{in_index}"
+				if self._out_quotes:
+					out_name = _quote_oracle_param(out_name)
+
 				out_repl = self._out_format.format(param=out_name)
 				param_conversions.append((False, in_index, out_name))
 				return out_repl

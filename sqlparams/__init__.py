@@ -111,7 +111,7 @@ class SQLParams(object):
 		*out_style*:
 
 		-	For all named styles the parameter keys must be valid `Python identifiers`_.
-			They cannot start with a digit. This is to help preven incorrectly
+			They cannot start with a digit. This is to help prevent incorrectly
 			matching common strings such as date-times.
 
 			Named styles:
@@ -124,6 +124,14 @@ class SQLParams(object):
 				style::
 
 					... WHERE name = $name
+
+				.. NOTE:: This is not defined by `PEP 249`_.
+
+			-	"named_oracle" indicates parameters will use the named style supported
+				by Oracle which allows for case-insensitive unquoted parameters and
+				case-sensitive quoted parameters::
+
+					... WHERE name = :name OR name = :"name"
 
 				.. NOTE:: This is not defined by `PEP 249`_.
 

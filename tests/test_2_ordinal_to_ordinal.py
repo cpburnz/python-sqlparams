@@ -7,10 +7,10 @@ import unittest
 import sqlparams
 
 
-class OrdinalToOrdinal(unittest.TestCase):
+class Test(unittest.TestCase):
 	"""
-	The :class:`OrdinalToOrdinal` class tests converting ordina
-	parameters to ordinal parameters.
+	The :class:`Test` class tests converting ordinal parameters to ordinal
+	parameters.
 
 	From: format, qmark.
 	To: format, qmark.
@@ -48,7 +48,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [id, name]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -92,7 +95,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [[__row['id'], __row['name']] for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -133,7 +139,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [name, id]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -178,7 +187,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [[__row['name'], __row['id']] for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -213,7 +225,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [race] + list(names)
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -249,7 +264,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [race] + list(names)
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -284,7 +302,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [race, names[:]]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -319,7 +340,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [race]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -347,8 +371,14 @@ class OrdinalToOrdinal(unittest.TestCase):
 			{'names': ("Oin", "Gloin"), 'race': "Dwarf"},
 		]
 		seq_params = [[__row['race'], __row['names']] for __row in base_params]
-		int_params = [{0: __row['race'], 1: __row['names']} for __row in base_params]
-		str_params = [{'0': __row['race'], '1': __row['names']} for __row in base_params]
+		int_params = [{
+			0: __row['race'],
+			1: __row['names'],
+		} for __row in base_params]
+		str_params = [{
+			'0': __row['race'],
+			'1': __row['names'],
+		} for __row in base_params]
 
 		# Desired SQL and params.
 		dest_sql = """
@@ -356,9 +386,14 @@ class OrdinalToOrdinal(unittest.TestCase):
 			FROM users
 			WHERE race = ? AND name IN (?,?);
 		"""
-		dest_params = [[__row['race']] + list(__row['names']) for __row in base_params]
+		dest_params = [
+			[__row['race']] + list(__row['names']) for __row in base_params
+		]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
@@ -385,10 +420,19 @@ class OrdinalToOrdinal(unittest.TestCase):
 			{'names': ("Thorin",), 'race': "Dwarf"},
 		]
 		seq_params = [[__row['race'], __row['names']] for __row in base_params]
-		int_params = [{0: __row['race'], 1: __row['names']} for __row in base_params]
-		str_params = [{'0': __row['race'], '1': __row['names']} for __row in base_params]
+		int_params = [{
+			0: __row['race'],
+			1: __row['names'],
+		} for __row in base_params]
+		str_params = [{
+			'0': __row['race'],
+			'1': __row['names'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				with self.assertRaisesRegex(ValueError, "length was expected to be 3.$"):
@@ -412,10 +456,19 @@ class OrdinalToOrdinal(unittest.TestCase):
 			{'names': "Thorin", 'race': "Dwarf"},
 		]
 		seq_params = [[__row['race'], __row['names']] for __row in base_params]
-		int_params = [{0: __row['race'], 1: __row['names']} for __row in base_params]
-		str_params = [{'0': __row['race'], '1': __row['names']} for __row in base_params]
+		int_params = [{
+			0: __row['race'],
+			1: __row['names'],
+		} for __row in base_params]
+		str_params = [{
+			'0': __row['race'],
+			'1': __row['names'],
+		} for __row in base_params]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				with self.assertRaisesRegex(TypeError, "was expected to be a tuple.$"):
@@ -447,7 +500,10 @@ class OrdinalToOrdinal(unittest.TestCase):
 		"""
 		dest_params = [id, name, id, name]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, params = query.format(src_sql, src_params)
@@ -474,9 +530,22 @@ class OrdinalToOrdinal(unittest.TestCase):
 			{'id': 12, 'name': "Bombur"},
 			{'id': 9, 'name': "Gloin"},
 		]
-		seq_params = [[__row['id'], __row['name'], __row['id'], __row['name']] for __row in base_params]
-		int_params = [{0: __row['id'], 1: __row['name'], 2: __row['id'], 3: __row['name']} for __row in base_params]
-		str_params = [{'0': __row['id'], '1': __row['name'], '2': __row['id'], '3': __row['name']} for __row in base_params]
+		seq_params = [
+			[__row['id'], __row['name'], __row['id'], __row['name']]
+			for __row in base_params
+		]
+		int_params = [{
+			0: __row['id'],
+			1: __row['name'],
+			2: __row['id'],
+			3: __row['name'],
+		} for __row in base_params]
+		str_params = [{
+			'0': __row['id'],
+			'1': __row['name'],
+			'2': __row['id'],
+			'3': __row['name'],
+		} for __row in base_params]
 
 		# Desired SQL and params.
 		dest_sql = """
@@ -484,9 +553,15 @@ class OrdinalToOrdinal(unittest.TestCase):
 			FROM users
 			WHERE id = ? OR name = ? OR altid = ? OR altname = ?;
 		"""
-		dest_params = [[__row['id'], __row['name'], __row['id'], __row['name']] for __row in base_params]
+		dest_params = [
+			[__row['id'], __row['name'], __row['id'], __row['name']]
+			for __row in base_params
+		]
 
-		for src_params, src in zip([seq_params, int_params, str_params], ['seq', 'int', 'str']):
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
 			with self.subTest(src=src):
 				# Format SQL with params.
 				sql, many_params = query.formatmany(src_sql, src_params)
