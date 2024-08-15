@@ -169,7 +169,7 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(many_params, dest_params)
 
-	def test_1_named_oracle_1_to_numeric_no_quotes(self):
+	def test_1_named_oracle_1_to_numeric_1_no_quotes(self):
 		"""
 		Test converting from::
 
@@ -188,7 +188,7 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = :ID OR name = :Name AND race = :race;
 		"""
-		src_params = {'id': 4, 'name': "Fili", 'race': "dwarf"}
+		src_params = {'id': 4, 'NAME': "Fili", 'Race': "dwarf"}
 
 		# Desired SQL and params.
 		dest_sql = """
@@ -196,7 +196,7 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = :1 OR name = :2 AND race = :3;
 		"""
-		dest_params = [src_params['id'], src_params['name'], src_params['race']]
+		dest_params = [src_params[__key] for __key in ['id', 'NAME', 'Race']]
 
 		# Format SQL with params.
 		sql, params = query.format(src_sql, src_params)
@@ -205,7 +205,7 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
-	def test_1_named_oracle_1_to_numeric_quotes(self):
+	def test_1_named_oracle_1_to_numeric_2_quotes(self):
 		"""
 		Test converting from::
 
@@ -232,7 +232,7 @@ class Test(unittest.TestCase):
 			FROM users
 			WHERE id = :1 OR name = :2 AND race = :3;
 		"""
-		dest_params = [src_params['"ID"'], src_params['"Name"'], src_params['"race"']]
+		dest_params = [src_params[__key] for __key in ['"ID"', '"Name"', '"race"']]
 
 		# Format SQL with params.
 		sql, params = query.format(src_sql, src_params)
@@ -241,50 +241,7 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
-	def test_1_named_oracle_2_to_numeric_many_no_quotes(self):
-		"""
-		Test converting from::
-
-			... WHERE name = :name
-
-		to::
-
-			... WHERE name = :1
-		"""
-		# Create instance.
-		query = sqlparams.SQLParams('named_oracle', 'numeric')
-
-		# Source SQL and params.
-		src_sql = """
-			SELECT *
-			FROM users
-			WHERE id = :ID OR name = :Name AND race = :race;
-		"""
-		src_params = [
-			{'id': 7, 'name': "Ori", 'race': "dwarf"},
-			{'id': 5, 'name': "Dori", 'race': "dwarf"},
-			{'id': 10, 'name': "Bifur", 'race': "dwarf"},
-		]
-
-		# Desired SQL and params.
-		dest_sql = """
-			SELECT *
-			FROM users
-			WHERE id = :1 OR name = :2 AND race = :3;
-		"""
-		dest_params = [
-			[__row[__k] for __k in ['id', 'name', 'race']]
-			for __row in src_params
-		]
-
-		# Format SQL with params.
-		sql, many_params = query.formatmany(src_sql, src_params)
-
-		# Make sure desired SQL and parameters are created.
-		self.assertEqual(sql, dest_sql)
-		self.assertEqual(many_params, dest_params)
-
-	def test_1_named_oracle_2_to_numeric_many_quotes(self):
+	def test_1_named_oracle_1_to_numeric_3_mixed(self):
 		"""
 		Test converting from::
 
@@ -298,6 +255,89 @@ class Test(unittest.TestCase):
 		query = sqlparams.SQLParams('named_oracle', 'numeric')
 
 		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"ID" OR name = :"Name" AND race = :race;
+		"""
+		src_params = {'id': 4, '"Name"': "Fili", '"RACE"': "dwarf"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [src_params[__key] for __key in ['id', '"Name"', '"RACE"']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_named_oracle_2_to_numeric_many_1_no_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :name
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		# - WARNING: Only the first row is scanned for the in-parameter names. All
+		#   subsequent rows must have the exact same in-parameter names.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :ID OR name = :Name AND race = :race;
+		"""
+		src_params = [
+			{'id': 7, 'NAME': "Ori", 'Race': "dwarf"},
+			{'id': 5, 'NAME': "Dori", 'Race': "dwarf"},
+			{'id': 10, 'NAME': "Bifur", 'Race': "dwarf"},
+		]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [
+			[__row[__key] for __key in ['id', 'NAME', 'Race']]
+			for __row in src_params
+		]
+
+		# Format SQL with params.
+		sql, many_params = query.formatmany(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(many_params, dest_params)
+
+	def test_1_named_oracle_2_to_numeric_many_2_quotes(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :"name"
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		# - WARNING: Only the first row is scanned for the in-parameter names. All
+		#   subsequent rows must have the exact same in-parameter names.
 		src_sql = """
 			SELECT *
 			FROM users
@@ -316,7 +356,52 @@ class Test(unittest.TestCase):
 			WHERE id = :1 OR name = :2 AND race = :3;
 		"""
 		dest_params = [
-			[__row[__k] for __k in ['"ID"', '"Name"', '"race"']]
+			[__row[__key] for __key in ['"ID"', '"Name"', '"race"']]
+			for __row in src_params
+		]
+
+		# Format SQL with params.
+		sql, many_params = query.formatmany(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(many_params, dest_params)
+
+	def test_1_named_oracle_2_to_numeric_many_3_mixed(self):
+		"""
+		Test converting from::
+
+			... WHERE name = :"name"
+
+		to::
+
+			... WHERE name = :1
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_oracle', 'numeric')
+
+		# Source SQL and params.
+		# - WARNING: Only the first row is scanned for the in-parameter names. All
+		#   subsequent rows must have the exact same in-parameter names.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :"ID" OR name = :"Name" AND race = :race;
+		"""
+		src_params = [
+			{'id': 7, '"Name"': "Ori", '"RACE"': "dwarf"},
+			{'id': 5, '"Name"': "Dori", '"RACE"': "dwarf"},
+			{'id': 10, '"Name"': "Bifur", '"RACE"': "dwarf"},
+		]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = :1 OR name = :2 AND race = :3;
+		"""
+		dest_params = [
+			[__row[__key] for __key in ['id', '"Name"', '"RACE"']]
 			for __row in src_params
 		]
 
