@@ -106,6 +106,21 @@ Change History
 ==============
 
 
+6.1.0 (2024-08-17)
+------------------
+
+New features:
+
+- `Issue #11`_/`Pull #12`_: Support Oracle named parameters enclosed in double quotes (style `named_oracle`).
+
+Improvements:
+
+- Support Python 3.13.
+
+.. _`Issue #11`: https://github.com/cpburnz/python-sqlparams/issues/11
+.. _`Pull #12`: https://github.com/cpburnz/python-sqlparams/pull/12
+
+
 6.0.1 (2023-12-09)
 ------------------
 
