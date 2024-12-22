@@ -75,16 +75,18 @@ dev-venv-install:
 # Distribution
 ################################################################################
 
-.PHONY: dist-build dist-prebuild dist-publish
+.PHONY: dist-attest dist-build dist-prebuild dist-publish
+
+dist-attest: dist-build
+	${VENV} python -m pypi_attestations sign ./dist/*
 
 dist-build: dist-prebuild
 	find ./dist -type f -delete
 	${VENV} python -m build
-	${VENV} python -m pypi_attestations sign ./dist/*
 
 dist-prebuild:
 	${VENV} python ./prebuild.py
 
-dist-publish: dist-build
+dist-publish: dist-attest
 	${VENV} twine check ./dist/*
 	${VENV} twine upload -r sqlparams --attestations --skip-existing ./dist/*
