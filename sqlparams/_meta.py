@@ -15,4 +15,4 @@ __credits__ = [
 	"dedabob <https://github.com/dedabob>",
 ]
 __license__ = "MIT License"
-__version__ = "6.1.0"
+__version__ = "6.1.1"

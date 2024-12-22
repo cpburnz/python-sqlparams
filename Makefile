@@ -67,8 +67,8 @@ dev-venv-create: dev-venv-base dev-venv-install
 
 dev-venv-install:
 	${VENV} pip3 install --upgrade pip setuptools wheel
-	${VENV} pip3 install --upgrade build sphinx tox twine typing-extensions
-	${VENV} pip3 install -e "${SRC_DIR}"
+	${VENV} pip3 install --upgrade build pypi_attestations sphinx tox twine typing-extensions
+	${VENV} pip3 install -e "${SRC_DIR}" -C editable_mode=compat
 
 
 ################################################################################
@@ -80,10 +80,11 @@ dev-venv-install:
 dist-build: dist-prebuild
 	find ./dist -type f -delete
 	${VENV} python -m build
+	${VENV} python -m pypi_attestations sign ./dist/*
 
 dist-prebuild:
 	${VENV} python ./prebuild.py
 
 dist-publish: dist-build
 	${VENV} twine check ./dist/*
-	${VENV} twine upload -r sqlparams --skip-existing ./dist/*
+	${VENV} twine upload -r sqlparams --attestations --skip-existing ./dist/*
