@@ -133,6 +133,15 @@ STYLES['named_oracle'] = NamedStyle(
 	param_quotes=True
 )
 
+# Define non-standard "named_sqlserver" parameter style.
+STYLES['named_sqlserver'] = NamedStyle(
+	name="named_sqlserver",
+	escape_char="@",
+	escape_regex="(?P<escape>{char}@)",
+	param_regex=r'(?<!@)@(?P<param>[A-Za-z_]\w*)',
+	out_format="@{param}"
+)
+
 # Define standard "numeric" parameter style.
 STYLES['numeric'] = NumericStyle(
 	name="numeric",
