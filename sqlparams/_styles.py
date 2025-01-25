@@ -128,7 +128,7 @@ STYLES['named_oracle'] = NamedStyle(
 	name="named_oracle",
 	escape_char=":",
 	escape_regex="(?P<escape>{char}:)",
-	param_regex=r'(?<!:):(?P<quote>"?)(?P<param>[A-Za-z_]\w*)(?P=quote)',
+	param_regex='(?<!:):(?P<quote>"?)(?P<param>[A-Za-z_]\\w*)(?P=quote)',
 	out_format=":{param}",
 	param_quotes=True
 )
@@ -138,7 +138,7 @@ STYLES['named_sqlserver'] = NamedStyle(
 	name="named_sqlserver",
 	escape_char="@",
 	escape_regex="(?P<escape>{char}@)",
-	param_regex=r'(?<!@)@(?P<param>[A-Za-z_]\w*)',
+	param_regex="(?<!@)@(?P<param>[A-Za-z_]\\w*)",
 	out_format="@{param}"
 )
 

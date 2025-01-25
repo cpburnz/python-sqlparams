@@ -408,6 +408,82 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(many_params, dest_params)
 
+	def test_1_named_sqlserver_to_qmark(self):
+		"""
+		Test converting from::
+
+			... WHERE name = @name
+
+		to::
+
+			... WHERE name = ?
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_sqlserver', 'qmark')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE name = @name OR id = @id;
+		"""
+		src_params = {'id': 5, 'name': "Dori"}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE name = ? OR id = ?;
+		"""
+		dest_params = [src_params['name'], src_params['id']]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_1_named_sqlserver_to_qmark_many(self):
+		"""
+		Test converting from::
+
+			... WHERE name = @name
+
+		to::
+
+			... WHERE name = ?
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_sqlserver', 'qmark')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE name = @name OR id = @id;
+		"""
+		src_params = [
+			{'id': 7, 'name': "Ori"},
+			{'id': 5, 'name': "Dori"},
+			{'id': 10, 'name': "Bifur"},
+		]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE name = ? OR id = ?;
+		"""
+		dest_params = [[__row['name'], __row['id']] for __row in src_params]
+
+		# Format SQL with params.
+		sql, many_params = query.formatmany(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(many_params, dest_params)
+
 	def test_1_pyformat_to_format(self):
 		"""
 		Test converting from::
@@ -880,6 +956,68 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
+	def test_4_named_sqlserver_escape_char(self):
+		"""
+		Test escaping a named sqlserver parameter.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_sqlserver', 'qmark', escape_char=True)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE name = @name AND tag IN ('@@Y2941', '@@2941');
+		"""
+		name = "Bilbo"
+		src_params = {'name': name}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE name = ? AND tag IN ('@Y2941', '@2941');
+		"""
+		dest_params = [name]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
+	def test_4_named_sqlserver_escape_char_disabled(self):
+		"""
+		Test disabling escaping of a named sqlserver parameter.
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('named_sqlserver', 'qmark', escape_char=False)
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE name = @name AND tag IN ('@@Y2941', '@2941');
+		"""
+		name = "Bilbo"
+		src_params = {'name': name}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE name = ? AND tag IN ('@@Y2941', '@2941');
+		"""
+		dest_params = [name]
+
+		# Format SQL with params.
+		sql, params = query.format(src_sql, src_params)
+
+		# Make sure desired SQL and parameters are created.
+		self.assertEqual(sql, dest_sql)
+		self.assertEqual(params, dest_params)
+
 	def test_4_pyformat_escape_char(self):
 		"""
 		Test escaping a pyformat parameter.
@@ -991,72 +1129,6 @@ class Test(unittest.TestCase):
 		# Source SQL and params.
 		src_sql = """
 			SELECT 5 % :value;
-		"""
-		value = 2
-		src_params = {'value': value}
-
-		# Desired SQL and params.
-		dest_sql = """
-			SELECT 5 % ?;
-		"""
-		dest_params = [value]
-
-		# Format SQL with params.
-		sql, params = query.format(src_sql, src_params)
-
-		# Make sure desired SQL and parameters are created.
-		self.assertEqual(sql, dest_sql)
-		self.assertEqual(params, dest_params)
-
-	def test_5_named_dollar_to_format_escaped_percent(self):
-		"""
-		Test converting from::
-
-			SELECT 5 % $value
-
-		to::
-
-			SELECT 5 %% %s
-		"""
-		# Create instance.
-		query = sqlparams.SQLParams('named_dollar', 'format')
-
-		# Source SQL and params.
-		src_sql = """
-			SELECT 5 % $value;
-		"""
-		value = 2
-		src_params = {'value': value}
-
-		# Desired SQL and params.
-		dest_sql = """
-			SELECT 5 %% %s;
-		"""
-		dest_params = [value]
-
-		# Format SQL with params.
-		sql, params = query.format(src_sql, src_params)
-
-		# Make sure desired SQL and parameters are created.
-		self.assertEqual(sql, dest_sql)
-		self.assertEqual(params, dest_params)
-
-	def test_5_named_dollar_to_qmark_unescaped_percent(self):
-		"""
-		Test converting from::
-
-			SELECT 5 % $value
-
-		to::
-
-			SELECT 5 % ?
-		"""
-		# Create instance.
-		query = sqlparams.SQLParams('named_dollar', 'qmark')
-
-		# Source SQL and params.
-		src_sql = """
-			SELECT 5 % $value;
 		"""
 		value = 2
 		src_params = {'value': value}

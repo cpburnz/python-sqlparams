@@ -493,6 +493,102 @@ class Test(unittest.TestCase):
 				self.assertEqual(sql, dest_sql)
 				self.assertEqual(many_params, dest_params)
 
+	def test_1_qmark_to_named_sqlserver(self):
+		"""
+		Test converting from::
+
+		  ... WHERE name = ?
+
+		to::
+
+		  ... WHERE name = @_0
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('qmark', 'named_sqlserver')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = ? OR name = ?;
+		"""
+		id, name = 7, "Ori"
+		seq_params = [id, name]
+		int_params = {0: id, 1: name}
+		str_params = {'0': id, '1': name}
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = @_0 OR name = @_1;
+		"""
+		dest_params = {'_0': id, '_1': name}
+
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
+			with self.subTest(src=src):
+				# Format SQL with params.
+				sql, params = query.format(src_sql, src_params)
+
+				# Make sure desired SQL and parameters are created.
+				self.assertEqual(sql, dest_sql)
+				self.assertEqual(params, dest_params)
+
+	def test_1_qmark_to_named_sqlserver_many(self):
+		"""
+		Test converting from::
+
+		  ... WHERE name = ?
+
+		to::
+
+		  ... WHERE name = @_0
+		"""
+		# Create instance.
+		query = sqlparams.SQLParams('qmark', 'named_sqlserver')
+
+		# Source SQL and params.
+		src_sql = """
+			SELECT *
+			FROM users
+			WHERE id = ? OR name = ?;
+		"""
+		base_params = [
+			{'id': 1, 'name': "Dwalin"},
+			{'id': 13, 'name': "Thorin"},
+			{'id': 5, 'name': "Dori"},
+			{'id': 7, 'name': "Ori"},
+		]
+		seq_params = [[__row['id'], __row['name']] for __row in base_params]
+		int_params = [{0: __row['id'], 1: __row['name']} for __row in base_params]
+		str_params = [{'0': __row['id'], '1': __row['name']} for __row in base_params]
+
+		# Desired SQL and params.
+		dest_sql = """
+			SELECT *
+			FROM users
+			WHERE id = @_0 OR name = @_1;
+		"""
+		dest_params = [{
+			'_0': __row['id'],
+			'_1': __row['name'],
+		} for __row in base_params]
+
+		for src_params, src in zip(
+			[seq_params, int_params, str_params],
+			['seq', 'int', 'str'],
+		):
+			with self.subTest(src=src):
+				# Format SQL with params.
+				sql, many_params = query.formatmany(src_sql, src_params)
+
+				# Make sure desired SQL and parameters are created.
+				self.assertEqual(sql, dest_sql)
+				self.assertEqual(many_params, dest_params)
+
 	def test_2_expand_tuples(self):
 		"""
 		Test expanding tuples.
@@ -1025,39 +1121,6 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
-	def test_5_format_to_named_dollar_collapsed_percent(self):
-		"""
-		Test converting from::
-
-			SELECT 5 %% %s
-
-		to::
-
-			SELECT 5 % $_0
-		"""
-		# Create instance.
-		query = sqlparams.SQLParams('format', 'named_dollar', escape_char=True)
-
-		# Source SQL and params.
-		src_sql = """
-			SELECT 5 %% %s;
-		"""
-		value = 2
-		src_params = [value]
-
-		# Desired SQL and params.
-		dest_sql = """
-			SELECT 5 % $_0;
-		"""
-		dest_params = {'_0': value}
-
-		# Format SQL with params.
-		sql, params = query.format(src_sql, src_params)
-
-		# Make sure desired SQL and parameters are created.
-		self.assertEqual(sql, dest_sql)
-		self.assertEqual(params, dest_params)
-
 	def test_5_format_to_pyformat_unescaped_percent(self):
 		"""
 		Test converting from::
@@ -1124,39 +1187,6 @@ class Test(unittest.TestCase):
 		self.assertEqual(sql, dest_sql)
 		self.assertEqual(params, dest_params)
 
-	def test_5_qmark_to_named_dollar_unescaped_percent(self):
-		"""
-		Test converting from::
-
-			SELECT 5 % ?
-
-		to::
-
-			SELECT 5 % $_0
-		"""
-		# Create instance.
-		query = sqlparams.SQLParams('qmark', 'named_dollar')
-
-		# Source SQL and params.
-		src_sql = """
-			SELECT 5 % ?;
-		"""
-		value = 2
-		src_params = [value]
-
-		# Desired SQL and params.
-		dest_sql = """
-			SELECT 5 % $_0;
-		"""
-		dest_params = {'_0': value}
-
-		# Format SQL with params.
-		sql, params = query.format(src_sql, src_params)
-
-		# Make sure desired SQL and parameters are created.
-		self.assertEqual(sql, dest_sql)
-		self.assertEqual(params, dest_params)
-
 	def test_5_qmark_to_pyformat_unescaped_percent(self):
 		"""
 		Test converting from::
@@ -1165,7 +1195,7 @@ class Test(unittest.TestCase):
 
 		to::
 
-			SELECT 5 %% %(_1)s
+			SELECT 5 %% %(_0)s
 		"""
 		# Create instance.
 		query = sqlparams.SQLParams('qmark', 'pyformat')

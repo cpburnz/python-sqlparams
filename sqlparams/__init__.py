@@ -135,6 +135,13 @@ class SQLParams(object):
 
 				.. NOTE:: This is not defined by `PEP 249`_.
 
+			-	"named_sqlserver" indicates parameters will use the named at-sign style
+				supported by Microsoft SQL Server::
+
+					... WHERE name = @name
+
+				.. NOTE:: This is not defined by `PEP 249`_.
+
 			-	"pyformat" indicates parameters will use the named Python extended
 				format style::
 

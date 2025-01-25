@@ -2,6 +2,15 @@
 Change History
 ==============
 
+6.2.0 (2024-01-25)
+------------------
+
+New features:
+
+- `Pull #13`_: ADD SQL Server style named parameter.
+
+.. _`Pull #13`: https://github.com/cpburnz/python-sqlparams/pull/13
+
 
 6.1.0 (2024-08-17)
 ------------------
